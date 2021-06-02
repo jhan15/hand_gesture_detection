@@ -19,7 +19,6 @@ $ python3 vol_control.py
 
 ## Demo
 
-You can watch [the video with audio](https://www.youtube.com/watch?v=l3ukvTslEB0).
+You can watch the [video with audio](https://www.youtube.com/watch?v=l3ukvTslEB0).
 
 ![v1](https://user-images.githubusercontent.com/62132206/120515147-54e67200-c3ce-11eb-919d-4c732efb9c62.gif)
-
