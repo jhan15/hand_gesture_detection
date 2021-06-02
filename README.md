@@ -10,3 +10,7 @@ Python 3.8 or later with dependencies listed in [requirements.txt](https://githu
 ```bash
 $ pip install -r requirements.txt
 ```
+
+## Demo
+
+<iframe id="video" width="560" height="315" src="https://www.youtube.com/watch?v=l3ukvTslEB0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen=""></iframe>
