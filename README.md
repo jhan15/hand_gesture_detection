@@ -28,4 +28,4 @@ You can watch the [video with audio](https://www.youtube.com/watch?v=l3ukvTslEB0
 
 ### Problem
 
-The package I used to update the volume for Macbook is [osascript](https://github.com/andrewp-as-is/osascript.py), it will reduce the FPS from ~30 to ~5.
+The package I used to control Macbook's volume is [osascript](https://github.com/andrewp-as-is/osascript.py), it will reduce the FPS from ~30 to ~5.
