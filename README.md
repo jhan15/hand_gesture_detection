@@ -18,6 +18,8 @@ $ python3 vol_control.py
 
 ## Volume control
 
+Control laptop's volume by fingertips of thumb and index finger.
+
 ### Demo
 
 You can watch the [video with audio](https://www.youtube.com/watch?v=l3ukvTslEB0).
