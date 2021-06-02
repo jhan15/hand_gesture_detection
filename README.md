@@ -12,7 +12,7 @@ $ pip install -r requirements.txt
 
 ## Volume control
 
-Control laptop's volume by fingers.
+Control laptop's volume by gestures.
 
 ### Usage
 
