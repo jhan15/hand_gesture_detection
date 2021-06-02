@@ -13,4 +13,6 @@ $ pip install -r requirements.txt
 
 ## Demo
 
-[![vol](http://img.youtube.com/vi/l3ukvTslEB0/0.jpg | width=48)](https://www.youtube.com/watch?v=l3ukvTslEB0 "vol")
+<img src="http://img.youtube.com/vi/l3ukvTslEB0/0.jpg" height="24" width="48">
+
+[![vol](http://img.youtube.com/vi/l3ukvTslEB0/0.jpg)](https://www.youtube.com/watch?v=l3ukvTslEB0 "vol")
