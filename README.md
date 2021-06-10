@@ -1,5 +1,5 @@
-# gesture_detecion
-It's a project to detect different gestures using Google's [mediapipe API](https://github.com/google/mediapipe).
+# gesture_vol_control
+It's a project to control the volume using different gestures. Gesture detection using Google's [mediapipe API](https://github.com/google/mediapipe).
 
 
 ## Requirements
@@ -10,11 +10,7 @@ Python 3.8 or later with dependencies listed in [requirements.txt](https://githu
 $ pip install -r requirements.txt
 ```
 
-## Volume control
-
-Control laptop's volume by gestures.
-
-### Usage
+## Usage
 
 ```bash
 $ python3 vol_control.py
