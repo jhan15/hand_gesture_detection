@@ -18,9 +18,15 @@ $ python3 vol_control.py
 
 ### Demo
 
-You can watch the [video with audio](https://www.youtube.com/watch?v=l3ukvTslEB0).
+#### Continuous control by length
 
-![v1](https://user-images.githubusercontent.com/62132206/120515147-54e67200-c3ce-11eb-919d-4c732efb9c62.gif)
+![vol1](https://user-images.githubusercontent.com/62132206/121547644-9a2d2400-ca0c-11eb-9141-a280243f71b0.gif)
+
+#### Step control by open/close
+
+![vol3](https://user-images.githubusercontent.com/62132206/121547653-9c8f7e00-ca0c-11eb-9319-e75a4e96cf6f.gif)
+
+You can watch the [video with audio](https://www.youtube.com/watch?v=l3ukvTslEB0).
 
 ### Problem
 
