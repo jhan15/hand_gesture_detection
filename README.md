@@ -7,14 +7,14 @@ It's a project to control the volume using different gestures. Gesture detection
 Python 3.8 or later with dependencies listed in [requirements.txt](https://github.com/jhan15/gesture_detection/blob/master/requirements.txt). To install run:
 
 ```bash
+$ git clone https://github.com/jhan15/gesture_vol_control.git
+$ cd gesture_vol_control
 $ pip install -r requirements.txt
 ```
 
 ## Usage
 
 ```bash
-$ git clone https://github.com/jhan15/gesture_vol_control.git
-$ cd gesture_vol_control
 $ python3 vol_control.py
 ```
 
