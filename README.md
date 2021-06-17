@@ -13,6 +13,8 @@ $ pip install -r requirements.txt
 ## Usage
 
 ```bash
+$ git clone https://github.com/jhan15/gesture_vol_control.git
+$ cd gesture_vol_control
 $ python3 vol_control.py
 ```
 
