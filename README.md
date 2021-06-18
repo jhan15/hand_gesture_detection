@@ -17,7 +17,7 @@ $ pip install -r requirements.txt
 ```bash
 $ python3 vol_control.py --control 'pinch_conti' # continuous control
                                    'pinch_step'  # step control
-                                   'none'        # draw hand landmarks
+                                   'none'        # display all hand landmarks
 ```
 
 ### Demo
