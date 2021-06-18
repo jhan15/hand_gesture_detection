@@ -3,58 +3,76 @@ import mediapipe as mp
 import time
 
 
-class handDetector:
-    def __init__(self, mode=False, max_hands=2, detect_con=0.7, track_con=0.5):
-        self.mode = mode
-        self.max_hands = max_hands
-        self.detect_con = detect_con
-        self.track_con = track_con
+class HandDetector:
+    def __init__(self, static_image_mode=False, max_num_hands=2,
+                min_detection_confidence=0.7, min_tracking_confidence=0.5):
+        
+        self.static_image_mode = static_image_mode
+        self.max_num_hands = max_num_hands
+        self.min_detection_confidence = min_detection_confidence
+        self.min_tracking_confidence = min_tracking_confidence
 
         self.mp_hands = mp.solutions.hands
-        self.hands = self.mp_hands.Hands(self.mode, self.max_hands,
-                                        self.detect_con, self.track_con)
         self.mp_drawing = mp.solutions.drawing_utils
-        self.results = None
+
+        self.hands = self.mp_hands.Hands(
+                                    self.static_image_mode,
+                                    self.max_num_hands,
+                                    self.min_detection_confidence,
+                                    self.min_tracking_confidence)
     
-    def find_hands(self, img, draw=True):
-        num_hands = 0
+    def detect_hands(self, img):
+        hands = None
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(img_rgb)
-        if self.results.multi_hand_landmarks:
-            num_hands = len(self.results.multi_hand_landmarks)
-            for hand_landmarks in self.results.multi_hand_landmarks:
-                if draw:
-                    self.mp_drawing.draw_landmarks(img, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
         
-        return img, num_hands
-    
-    def find_position(self, img, hand_id=0, draw=True):
-        lm_list = []
         if self.results.multi_hand_landmarks:
-            my_hand = self.results.multi_hand_landmarks[hand_id]
-            for id, lm in enumerate(my_hand.landmark):
-                h, w, _ = img.shape
-                cx, cy, cz = int(lm.x * w), int(lm.y * h), lm.z
-                lm_list.append([id, cx, cy, cz])
-                if draw:
-                    cv2.circle(img, (cx, cy), 10, (255,0,255), cv2.FILLED)
+            h, w, _ = img.shape
+            num_hands = len(self.results.multi_hand_landmarks)
+            hands = [None] * num_hands
 
-        return lm_list
+            for i in range(num_hands):
+                hands[i] = dict()
+                handedness = self.results.multi_handedness[i]
+                hand_landmarks = self.results.multi_hand_landmarks[i]
+
+                hands[i]['index'] = handedness.classification[0].index
+                hands[i]['label'] = handedness.classification[0].label
+
+                lm_list = list()
+                wrist_z = hand_landmarks.landmark[0].z
+
+                for lm in hand_landmarks.landmark:
+                    cx = int(lm.x * w)
+                    cy = int(lm.y * h)
+                    cz = lm.z - wrist_z
+                    lm_list.append([cx, cy, cz])
+                
+                hands[i]['lm'] = lm_list
+        
+        return img, hands
+    
+    def draw_landmarks(self, img):
+        if self.results.multi_hand_landmarks:
+            for landmarks in self.results.multi_hand_landmarks:
+                self.mp_drawing.draw_landmarks(img, landmarks, self.mp_hands.HAND_CONNECTIONS)
+        
+        return img
 
 
 def main():
     ptime = 0
     ctime = 0
     cap = cv2.VideoCapture(1)
-    detector = handDetector(detect_con=0.7)
+    cap.set(3, 640)
+    cap.set(4, 480)
+    detector = HandDetector(min_detection_confidence=0.7)
 
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        img, num_hands = detector.find_hands(img)
-        if num_hands > 0:
-            for i in range(num_hands):
-                _ = detector.find_position(img, i)
+        img, _ = detector.detect_hands(img)
+        img = detector.draw_landmarks(img)
         
         ctime = time.time()
         fps = 1 / (ctime - ptime)
