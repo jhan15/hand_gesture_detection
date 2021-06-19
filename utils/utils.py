@@ -2,10 +2,10 @@ import cv2
 import math
 
 
-text_color = (255,0,0)       # text color
-bar_color = (255,0,0)        # bar color
+text_color = (0,255,0)       # text color
+bar_color = (0,255,0)        # bar color
 line_color = (255,255,255)   # landmark connection color
-lm_color = (255,0,0)         # landmark color
+lm_color = (153,51,255)      # landmark color
 
 
 def draw_vol_bar(img, vol_bar, vol, bar_x_range):
@@ -14,10 +14,10 @@ def draw_vol_bar(img, vol_bar, vol, bar_x_range):
     cv2.putText(img, f'{int(vol)}', (bar_x_range[1]+10,40), 0, 0.8, text_color, 2, lineType=cv2.LINE_AA)
 
 
-def draw_landmarks(img, pt1, pt2, color=lm_color):
-    cv2.circle(img, pt1, 10, color, -1, lineType=cv2.LINE_AA)
-    cv2.circle(img, pt2, 10, color, -1, lineType=cv2.LINE_AA)
-    cv2.line(img, pt1, pt2, line_color, 3)
+def draw_landmarks(img, pt1, pt2, color=line_color):
+    cv2.circle(img, pt1, 10, lm_color, -1, lineType=cv2.LINE_AA)
+    cv2.circle(img, pt2, 10, lm_color, -1, lineType=cv2.LINE_AA)
+    cv2.line(img, pt1, pt2, color, 3)
 
 
 def two_landmark_distance(landmarks, id1, id2):

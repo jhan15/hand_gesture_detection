@@ -45,7 +45,7 @@ class HandDetector:
                 for lm in hand_landmarks.landmark:
                     cx = int(lm.x * w)
                     cy = int(lm.y * h)
-                    cz = lm.z - wrist_z
+                    cz = int((lm.z - wrist_z) * w)
                     lm_list.append([cx, cy, cz])
                 
                 hands[i]['lm'] = lm_list
@@ -71,14 +71,18 @@ def main():
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        img, _ = detector.detect_hands(img)
+        img, hands = detector.detect_hands(img)
         img = detector.draw_landmarks(img)
         
         ctime = time.time()
         fps = 1 / (ctime - ptime)
         ptime = ctime
 
-        cv2.putText(img, f'FPS: {int(fps)}', (30,40), cv2.FONT_HERSHEY_PLAIN, 3, (51,255,51), 3)
+        cv2.putText(img, f'FPS: {int(fps)}', (30,40), 0, 0.8, (51,255,51), 2)
+
+        if hands:
+            z = hands[-1]['lm'][8][2]
+            cv2.putText(img, f'z of index fingertip: {int(z)}', (30,80), 0, 0.8, (51,255,51), 2)
 
         cv2.imshow('Img', img)
         key = cv2.waitKey(1)

@@ -11,9 +11,9 @@ from utils.utils import update_buffer, check_buffer
 
 cam_w = 640                 # camera width
 cam_h = 480                 # camera height
-text_color = (255,0,0)      # text color
-lm_color_up = (0,0,255)     # landmark color high
-lm_color_down = (0,255,0)   # landmark color low
+text_color = (0,255,0)      # text color
+line_color_up = (0,255,0)     # landmark color high
+line_color_down = (0,255,0)   # landmark color low
 vol_range = [0, 100]        # system volume range
 bar_x_range = [350, 550]    # bar x position range
 len_range = [20, 150]       # length range of thumb tip and index finge
@@ -66,9 +66,9 @@ def vol_control(control='pinch_conti',      # gesture control type
                 length, pt1, pt2 = two_landmark_distance(landmarks, 4, 8)
 
                 if length > step_threshold[1]:
-                    draw_landmarks(img, pt1, pt2, lm_color_up)
+                    draw_landmarks(img, pt1, pt2, line_color_up)
                 elif length < step_threshold[0]:
-                    draw_landmarks(img, pt1, pt2, lm_color_down)
+                    draw_landmarks(img, pt1, pt2, line_color_down)
                 else:
                     draw_landmarks(img, pt1, pt2)
 
