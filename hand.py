@@ -1,6 +1,22 @@
 import cv2
 import mediapipe as mp
 import time
+import numpy as np
+
+from utils.utils import calculate_angle
+
+
+STRAIGHT = 3 * np.pi
+BENT = 2 * np.pi
+ERROR = np.pi / 16
+
+STATES = {
+    0: 'straight',
+    1: 'in-between',
+    2: 'bent'
+}
+
+TEXT_COLOR = (102, 51, 0)
 
 
 class HandDetector:
@@ -22,22 +38,22 @@ class HandDetector:
                                     self.min_tracking_confidence)
     
     def detect_hands(self, img):
-        hands = None
+        self.decoded_hands = None
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(img_rgb)
         
         if self.results.multi_hand_landmarks:
             h, w, _ = img.shape
             num_hands = len(self.results.multi_hand_landmarks)
-            hands = [None] * num_hands
+            self.decoded_hands = [None] * num_hands
 
             for i in range(num_hands):
-                hands[i] = dict()
+                self.decoded_hands[i] = dict()
                 handedness = self.results.multi_handedness[i]
                 hand_landmarks = self.results.multi_hand_landmarks[i]
 
-                hands[i]['index'] = handedness.classification[0].index
-                hands[i]['label'] = handedness.classification[0].label
+                self.decoded_hands[i]['index'] = handedness.classification[0].index
+                self.decoded_hands[i]['label'] = handedness.classification[0].label
 
                 lm_list = list()
                 wrist_z = hand_landmarks.landmark[0].z
@@ -48,9 +64,9 @@ class HandDetector:
                     cz = int((lm.z - wrist_z) * w)
                     lm_list.append([cx, cy, cz])
                 
-                hands[i]['lm'] = lm_list
+                self.decoded_hands[i]['lm'] = lm_list
         
-        return img, hands
+        return img, self.decoded_hands
     
     def draw_landmarks(self, img):
         if self.results.multi_hand_landmarks:
@@ -58,14 +74,44 @@ class HandDetector:
                 self.mp_drawing.draw_landmarks(img, landmarks, self.mp_hands.HAND_CONNECTIONS)
         
         return img
+    
+    def finger_state(self, landmarks, img, draw=False):
+        finger_states = [None] * 5
+        for i in range(5):
+            pts = [0, 4*i+1, 4*i+2, 4*i+3, 4*i+4]
+            acc_angles = 0
+            for j in range(len(pts)-2):
+                acc_angles += calculate_angle(landmarks[pts[j]][:2],
+                                              landmarks[pts[j+1]][:2],
+                                              landmarks[pts[j+2]][:2])
+            if i == 0:
+                threshold = [BENT+8*ERROR, STRAIGHT-7*ERROR]
+            else:
+                threshold = [BENT+5*ERROR, STRAIGHT-4*ERROR]
+
+            if acc_angles > threshold[1]:
+                finger_states[i] = 0
+            elif acc_angles < threshold[0]:
+                finger_states[i] = 2
+            else:
+                finger_states[i] = 1
+            
+            if draw:
+                if finger_states[i] == 0:
+                    pt = landmarks[pts[4]]
+                else:
+                    pt = landmarks[pts[2]]
+                cv2.putText(img, f'{STATES[finger_states[i]]}', (pt[0]-20,pt[1]-30), 0, 0.5, TEXT_COLOR, 2)
+        
+        return finger_states
 
 
 def main():
     ptime = 0
     ctime = 0
-    cap = cv2.VideoCapture(1)
-    cap.set(3, 640)
-    cap.set(4, 480)
+    cap = cv2.VideoCapture(0)
+    cap.set(3, 1280)
+    cap.set(4, 800)
     detector = HandDetector(min_detection_confidence=0.7)
 
     while True:
@@ -73,16 +119,15 @@ def main():
         img = cv2.flip(img, 1)
         img, hands = detector.detect_hands(img)
         img = detector.draw_landmarks(img)
+        if hands:
+            landmarks = hands[-1]['lm']
+            detector.finger_state(landmarks, img, draw=True)
         
         ctime = time.time()
         fps = 1 / (ctime - ptime)
         ptime = ctime
 
-        cv2.putText(img, f'FPS: {int(fps)}', (30,40), 0, 0.8, (51,255,51), 2)
-
-        if hands:
-            z = hands[-1]['lm'][8][2]
-            cv2.putText(img, f'z of index fingertip: {int(z)}', (30,80), 0, 0.8, (51,255,51), 2)
+        cv2.putText(img, f'FPS: {int(fps)}', (30,40), 0, 0.8, TEXT_COLOR , 2)
 
         cv2.imshow('Img', img)
         key = cv2.waitKey(1)

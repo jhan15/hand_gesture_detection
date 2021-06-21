@@ -4,45 +4,45 @@ import numpy as np
 import time
 from osascript import osascript
 
-from utils.hand import HandDetector
+from hand import HandDetector
 from utils.utils import draw_vol_bar, draw_landmarks, two_landmark_distance
-from utils.utils import update_buffer, check_buffer
+from utils.utils import update_trajectory, check_trajectory
 
 
-cam_w = 640                 # camera width
-cam_h = 480                 # camera height
-text_color = (0,255,0)      # text color
-line_color_up = (0,255,0)     # landmark color high
-line_color_down = (0,255,0)   # landmark color low
-vol_range = [0, 100]        # system volume range
-bar_x_range = [350, 550]    # bar x position range
-len_range = [20, 150]       # length range of thumb tip and index finge
-step_threshold = [30, 130]  # threshold of step control     
+CAM_W = 1280                                # camera width
+CAM_H = 800                                 # camera height
+TEXT_COLOR = (102,51,0)                     # text color
+LINE_COLOR_HIGH = (0,0,255)                 # landmark color high
+LINE_COLOR_LOW = (0,255,0)                  # landmark color low
+VOL_RANGE = [0, 100]                        # system volume range
+BAR_X_RANGE = [1000, 1200]                  # bar x position range
+LEN_RANGE = [20, 150]                       # range of thumb and index fingertips
+STEP_THRESHOLD = [30, 130]                  # threshold of step control
 
 
-def vol_control(control='pinch_conti',      # gesture control type
+def vol_control(control='none',             # gesture control type
                 max_hands=2,                # maximum number of hands detected
-                detect_conf=0.7,            # detection confidence level
+                detect_conf=0.8,            # detection confidence level
                 track_conf=0.5,             # tracking confidence level
                 step=10,                    # step control size
-                buffer=5,                   # buffer size
+                trajectory_size=12,         # trajectory size
                 ):
     
-    cap = cv2.VideoCapture(1)
-    cap.set(3, cam_w)
-    cap.set(4, cam_h)
+    cap = cv2.VideoCapture(0)
+    cap.set(3, CAM_W)
+    cap.set(4, CAM_H)
     detector = HandDetector(max_num_hands=max_hands,
                             min_detection_confidence=detect_conf,
                             min_tracking_confidence=track_conf)
 
-    vol = (vol_range[0] + vol_range[1]) // 2
-    vol_bar = (bar_x_range[0] + bar_x_range[1]) // 2
+    vol = (VOL_RANGE[0] + VOL_RANGE[1]) // 2
+    vol_bar = (BAR_X_RANGE[0] + BAR_X_RANGE[1]) // 2
     osascript("set volume output volume {}".format(vol))
 
     ptime = 0
     ctime = 0
     window_name = 'Volume control'
-    buffer_list = list()
+    trajectory = list()
 
     while True:
         _, img = cap.read()
@@ -51,54 +51,58 @@ def vol_control(control='pinch_conti',      # gesture control type
 
         # control
         if hands:
+            # none control mode
             if control == 'none':
                 img = detector.draw_landmarks(img)
             
+            # continuous control mode
             if control == 'pinch_conti':
                 landmarks = hands[-1]['lm'] # use the firstly detected hand
                 length, pt1, pt2 = two_landmark_distance(landmarks, 4, 8)
                 draw_landmarks(img, pt1, pt2)
-                vol = np.interp(length, len_range, vol_range)
-                vol_bar = np.interp(length, len_range, bar_x_range)
+                vol = np.interp(length, LEN_RANGE, VOL_RANGE)
+                vol_bar = np.interp(length, LEN_RANGE, BAR_X_RANGE)
+                osascript("set volume output volume {}".format(vol))
 
+            # step control mode
             if control == 'pinch_step':
                 landmarks = hands[-1]['lm']
                 length, pt1, pt2 = two_landmark_distance(landmarks, 4, 8)
 
-                if length > step_threshold[1]:
-                    draw_landmarks(img, pt1, pt2, line_color_up)
-                elif length < step_threshold[0]:
-                    draw_landmarks(img, pt1, pt2, line_color_down)
+                if length > STEP_THRESHOLD[1]:
+                    draw_landmarks(img, pt1, pt2, LINE_COLOR_HIGH)
+                elif length < STEP_THRESHOLD[0]:
+                    draw_landmarks(img, pt1, pt2, LINE_COLOR_LOW)
                 else:
                     draw_landmarks(img, pt1, pt2)
 
-                buffer_list = update_buffer(length, buffer_list, buffer)
+                trajectory = update_trajectory(length, trajectory, trajectory_size)
                 up = False
                 down = False
 
-                if len(buffer_list) == buffer and length > step_threshold[1]:
-                    up = check_buffer(buffer_list, direction=1)
+                if len(trajectory) == trajectory_size and length > STEP_THRESHOLD[1]:
+                    up = check_trajectory(trajectory, direction=1)
                     if up:
-                        vol = min(vol + step, vol_range[1])
+                        vol = min(vol + step, VOL_RANGE[1])
+                        osascript("set volume output volume {}".format(vol))
                 
-                if len(buffer_list) == buffer and length < step_threshold[0]:
-                    down = check_buffer(buffer_list, direction=-1)
+                if len(trajectory) == trajectory_size and length < STEP_THRESHOLD[0]:
+                    down = check_trajectory(trajectory, direction=-1)
                     if down:
-                        vol = max(vol - step, vol_range[0])
+                        vol = max(vol - step, VOL_RANGE[0])
+                        osascript("set volume output volume {}".format(vol))
                 
                 if up or down:
-                    vol_bar = np.interp(vol, vol_range, bar_x_range)
-                    buffer_list = []
-
-            osascript("set volume output volume {}".format(vol))
+                    vol_bar = np.interp(vol, VOL_RANGE, BAR_X_RANGE)
+                    trajectory = []           
              
         ctime = time.time()
         fps = 1 / (ctime - ptime)
         ptime = ctime
         
-        draw_vol_bar(img, vol_bar, vol, bar_x_range)
+        draw_vol_bar(img, vol_bar, vol, BAR_X_RANGE)
 
-        cv2.putText(img, f'FPS: {int(fps)}', (30,40), 0, 0.8, text_color, 2, lineType=cv2.LINE_AA)
+        cv2.putText(img, f'FPS: {int(fps)}', (50,38), 0, 0.8, TEXT_COLOR, 2, lineType=cv2.LINE_AA)
 
         cv2.imshow(window_name, img)
         key = cv2.waitKey(1)
@@ -114,7 +118,7 @@ if __name__ == '__main__':
     parser.add_argument('--detect_conf', type=float, default=0.7)
     parser.add_argument('--track_conf', type=float, default=0.5)
     parser.add_argument('--step', type=int, default=10)
-    parser.add_argument('--buffer', type=int, default=5)
+    parser.add_argument('--trajectory_size', type=int, default=12)
     opt = parser.parse_args()
 
     vol_control(**vars(opt))
