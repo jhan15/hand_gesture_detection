@@ -1,20 +1,9 @@
 import cv2
 import mediapipe as mp
 import time
-import numpy as np
 
-from utils.utils import calculate_angle
+from utils.utils import check_hand_direction, find_boundary_lm
 
-
-STRAIGHT = 3 * np.pi
-BENT = 2 * np.pi
-ERROR = np.pi / 16
-
-STATES = {
-    0: 'straight',
-    1: 'in-between',
-    2: 'bent'
-}
 
 CAM_W = 1280
 CAM_H = 800
@@ -67,6 +56,8 @@ class HandDetector:
                     lm_list.append([cx, cy, cz])
                 
                 decoded_hands[i]['lm'] = lm_list
+                decoded_hands[i]['direction'] = check_hand_direction(lm_list)
+                decoded_hands[i]['boundary'] = find_boundary_lm(lm_list)
         
         return decoded_hands
     
@@ -74,36 +65,6 @@ class HandDetector:
         if self.results.multi_hand_landmarks:
             for landmarks in self.results.multi_hand_landmarks:
                 self.mp_drawing.draw_landmarks(img, landmarks, self.mp_hands.HAND_CONNECTIONS)
-    
-    def check_finger_states(self, landmarks, img, draw=False):
-        finger_states = [None] * 5
-        for i in range(5):
-            pts = [0, 4*i+1, 4*i+2, 4*i+3, 4*i+4]
-            acc_angles = 0
-            for j in range(len(pts)-2):
-                acc_angles += calculate_angle(landmarks[pts[j]][:2],
-                                              landmarks[pts[j+1]][:2],
-                                              landmarks[pts[j+2]][:2])
-            if i == 0:
-                threshold = [BENT+8*ERROR, STRAIGHT-7*ERROR]
-            else:
-                threshold = [BENT+5*ERROR, STRAIGHT-4*ERROR]
-
-            if acc_angles > threshold[1]:
-                finger_states[i] = 0
-            elif acc_angles < threshold[0]:
-                finger_states[i] = 2
-            else:
-                finger_states[i] = 1
-            
-            if draw:
-                if finger_states[i] == 0:
-                    pt = landmarks[pts[4]]
-                else:
-                    pt = landmarks[pts[2]]
-                cv2.putText(img, f'{STATES[finger_states[i]]}', (pt[0]-20,pt[1]-30), 0, 0.5, TEXT_COLOR, 2)
-        
-        return finger_states
 
 
 def main():
@@ -117,11 +78,8 @@ def main():
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        hands = detector.detect_hands(img)
+        detector.detect_hands(img)
         detector.draw_landmarks(img)
-        if hands:
-            landmarks = hands[-1]['lm']
-            finger_states = detector.check_finger_states(landmarks, img, draw=True)
         
         ctime = time.time()
         fps = 1 / (ctime - ptime)

@@ -1,10 +1,20 @@
 import cv2
 import time
+import numpy as np
 
 from hand import HandDetector
 from utils.templates import Gesture
-from utils.utils import map_gesture, draw_bounding_box
+from utils.utils import map_gesture, draw_bounding_box, calculate_angle, get_finger_state
 
+
+THUMB_THRESH = [5.4, 5.4]
+NON_THUMB_THRESH = [5.5, 5.6]
+
+STATES = {
+    0: 'straight',
+    1: 'in-between',
+    2: 'bent'
+}
 
 CAM_W = 1280
 CAM_H = 800
@@ -15,11 +25,38 @@ class GestureDetector:
     def __init__(self, static_image_mode=False, max_num_hands=2,
                 min_detection_confidence=0.8, min_tracking_confidence=0.5):
         
-        self.ges = Gesture()
         self.hand_detector = HandDetector(static_image_mode,
                                           max_num_hands,
                                           min_detection_confidence,
                                           min_tracking_confidence)
+    
+    
+    def check_finger_states(self, landmarks, img):
+        finger_states = [None] * 5
+        joint_angles = np.zeros((5,3))
+        
+        for i in range(5):
+            joints = [0, 4*i+1, 4*i+2, 4*i+3, 4*i+4]
+            joint_angles[i] = np.array(
+                [calculate_angle(landmarks[joints[j]],
+                                 landmarks[joints[j+1]],
+                                 landmarks[joints[j+2]]) for j in range(3)]
+            )
+            acc_angle = joint_angles[i, 1:].sum()
+
+            if i == 0:
+                threshold = THUMB_THRESH
+            else:
+                threshold = NON_THUMB_THRESH
+            
+            finger_states[i] = get_finger_state(acc_angle, threshold)
+
+            # pt = landmarks[joints[3]]
+            # cv2.putText(img, f'{round(acc_angle,2)}', (pt[0]+5,pt[1]+5), 0, 0.5, TEXT_COLOR, 2)
+            # pt = landmarks[joints[1]]
+            # cv2.putText(img, f'{round(joint_angles[i, 0],2)}', (pt[0]+5,pt[1]+5), 0, 0.5, TEXT_COLOR, 2)
+        
+        return finger_states
     
     def detect_gestures(self, img):
         hands = self.hand_detector.detect_hands(img)
@@ -27,11 +64,15 @@ class GestureDetector:
         detected_gesture = None
 
         if hands:
-            landmarks = hands[-1]['lm']
-            finger_states = self.hand_detector.check_finger_states(landmarks, img)
-            detected_gesture = map_gesture(finger_states, self.ges.gestures)
+            hand = hands[-1]
+            ges = Gesture(hand['label'])
+            finger_states = self.check_finger_states(hand['lm'], img)
+            detected_gesture = map_gesture(finger_states,
+                                           hand['direction'],
+                                           hand['boundary'],
+                                           ges.gestures)
             if detected_gesture:
-                draw_bounding_box(landmarks, detected_gesture, img)
+                draw_bounding_box(hand['lm'], detected_gesture, img)
 
         return detected_gesture
 
