@@ -7,6 +7,7 @@ from osascript import osascript
 from hand import HandDetector
 from utils.utils import draw_vol_bar, draw_landmarks, two_landmark_distance
 from utils.utils import update_trajectory, check_trajectory
+from utils.gestures import Gesture
 
 
 CAM_W = 1280                                # camera width
@@ -47,13 +48,13 @@ def vol_control(control='none',             # gesture control type
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        img, hands = detector.detect_hands(img)
+        hands = detector.detect_hands(img)
 
         # control
         if hands:
             # none control mode
             if control == 'none':
-                img = detector.draw_landmarks(img)
+                detector.draw_landmarks(img)
             
             # continuous control mode
             if control == 'pinch_conti':

@@ -16,12 +16,14 @@ STATES = {
     2: 'bent'
 }
 
+CAM_W = 1280
+CAM_H = 800
 TEXT_COLOR = (102, 51, 0)
 
 
 class HandDetector:
     def __init__(self, static_image_mode=False, max_num_hands=2,
-                min_detection_confidence=0.7, min_tracking_confidence=0.5):
+                min_detection_confidence=0.8, min_tracking_confidence=0.5):
         
         self.static_image_mode = static_image_mode
         self.max_num_hands = max_num_hands
@@ -38,22 +40,22 @@ class HandDetector:
                                     self.min_tracking_confidence)
     
     def detect_hands(self, img):
-        self.decoded_hands = None
+        decoded_hands = None
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(img_rgb)
         
         if self.results.multi_hand_landmarks:
             h, w, _ = img.shape
             num_hands = len(self.results.multi_hand_landmarks)
-            self.decoded_hands = [None] * num_hands
+            decoded_hands = [None] * num_hands
 
             for i in range(num_hands):
-                self.decoded_hands[i] = dict()
+                decoded_hands[i] = dict()
                 handedness = self.results.multi_handedness[i]
                 hand_landmarks = self.results.multi_hand_landmarks[i]
 
-                self.decoded_hands[i]['index'] = handedness.classification[0].index
-                self.decoded_hands[i]['label'] = handedness.classification[0].label
+                decoded_hands[i]['index'] = handedness.classification[0].index
+                decoded_hands[i]['label'] = handedness.classification[0].label
 
                 lm_list = list()
                 wrist_z = hand_landmarks.landmark[0].z
@@ -64,18 +66,16 @@ class HandDetector:
                     cz = int((lm.z - wrist_z) * w)
                     lm_list.append([cx, cy, cz])
                 
-                self.decoded_hands[i]['lm'] = lm_list
+                decoded_hands[i]['lm'] = lm_list
         
-        return img, self.decoded_hands
+        return decoded_hands
     
     def draw_landmarks(self, img):
         if self.results.multi_hand_landmarks:
             for landmarks in self.results.multi_hand_landmarks:
                 self.mp_drawing.draw_landmarks(img, landmarks, self.mp_hands.HAND_CONNECTIONS)
-        
-        return img
     
-    def finger_state(self, landmarks, img, draw=False):
+    def check_finger_states(self, landmarks, img, draw=False):
         finger_states = [None] * 5
         for i in range(5):
             pts = [0, 4*i+1, 4*i+2, 4*i+3, 4*i+4]
@@ -107,21 +107,21 @@ class HandDetector:
 
 
 def main():
+    cap = cv2.VideoCapture(0)
+    cap.set(3, CAM_W)
+    cap.set(4, CAM_H)
+    detector = HandDetector()
     ptime = 0
     ctime = 0
-    cap = cv2.VideoCapture(0)
-    cap.set(3, 1280)
-    cap.set(4, 800)
-    detector = HandDetector(min_detection_confidence=0.7)
 
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        img, hands = detector.detect_hands(img)
-        img = detector.draw_landmarks(img)
+        hands = detector.detect_hands(img)
+        detector.draw_landmarks(img)
         if hands:
             landmarks = hands[-1]['lm']
-            detector.finger_state(landmarks, img, draw=True)
+            finger_states = detector.check_finger_states(landmarks, img, draw=True)
         
         ctime = time.time()
         fps = 1 / (ctime - ptime)
@@ -129,7 +129,7 @@ def main():
 
         cv2.putText(img, f'FPS: {int(fps)}', (30,40), 0, 0.8, TEXT_COLOR , 2)
 
-        cv2.imshow('Img', img)
+        cv2.imshow('Hand detection', img)
         key = cv2.waitKey(1)
         if key == ord('q'):
             cv2.destroyAllWindows()

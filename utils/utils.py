@@ -9,6 +9,26 @@ LINE_COLOR = (255,255,255)    # landmark connection color
 LM_COLOR = (255,51,255)       # landmark color
 
 
+def draw_bounding_box(landmarks, detected_gesture, img, tor=40):
+    xs = np.array(landmarks)[:,0]
+    ys = np.array(landmarks)[:,1]
+    x_max, x_min = np.max(xs), np.min(xs)
+    y_max, y_min = np.max(ys), np.min(ys)
+    cv2.rectangle(img, (x_min-tor,y_min-tor), (x_max+tor,y_max+tor), BAR_COLOR, 2, lineType=cv2.LINE_AA)
+    cv2.rectangle(img, (x_min-tor,y_min-2*tor), (x_max+tor,y_min-tor), BAR_COLOR, -1, lineType=cv2.LINE_AA)
+    cv2.putText(img, f'{detected_gesture}', (x_min-tor+5,y_min-tor-5), 0, 1.2, LINE_COLOR, 3, lineType=cv2.LINE_AA)
+
+
+def map_gesture(finger_states, gestures):
+    detected_gesture = None
+    if finger_states in gestures.values():
+        for ges, state in gestures.items():
+            if state == finger_states:
+                detected_gesture = ges
+                break
+    
+    return detected_gesture
+
 def calculate_angle(pt1, pt2, pt3):
     pt21 = np.array(pt1) - np.array(pt2)
     pt23 = np.array(pt3) - np.array(pt2)
