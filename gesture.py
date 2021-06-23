@@ -4,7 +4,8 @@ import numpy as np
 
 from hand import HandDetector
 from utils.templates import Gesture
-from utils.utils import map_gesture, draw_bounding_box, calculate_angle, get_finger_state
+from utils.utils import calculate_angle, get_finger_state, map_gesture
+from utils.utils import draw_bounding_box
 
 
 THUMB_THRESH = [5.4, 5.4]
