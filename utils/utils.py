@@ -20,15 +20,31 @@ def find_boundary_lm(landmarks):
     return [lm_x_max, lm_x_min, lm_y_max, lm_y_min]
 
 
-def get_finger_state(acc_angle, threshold):
-    """ Define a finger's state by it's accumulated joint angles of PIP and DIP. """
+def get_thumb_state(acc_angle, mcp_angle, threshold, mcp_threshold):
+    """ Define thumb's state by it's joint angles. """
     finger_state = None
-    if acc_angle > threshold[1]:
+    if acc_angle > threshold:
         finger_state = 0
-    elif acc_angle < threshold[0]:
-        finger_state = 2
     else:
-        finger_state = 1
+        if mcp_angle > mcp_threshold:
+            finger_state = 1
+        else:
+            finger_state = 2
+    
+    return finger_state
+
+
+def get_finger_state(acc_angle, threshold):
+    """ Define a finger's state by it's joint angles. """
+    new_threshold = threshold.copy()
+    new_threshold.append(-np.inf)
+    new_threshold.insert(0, np.inf)
+    finger_state = None
+    
+    for i in range(len(new_threshold)-1):
+        if new_threshold[i] > acc_angle >= new_threshold[i+1]:
+            finger_state = i
+            break
     
     return finger_state
 
@@ -72,8 +88,13 @@ def map_gesture(finger_states, direction, boundary, gestures):
     detected_gesture = None
     for ges, temp in gestures.items():
         count = 0
-        if temp['finger states'] == finger_states:
-            count += 1
+        if 4 in temp['finger states']:
+            if temp['finger states'] == finger_states:
+                count += 1
+        else:
+            new_finger_states = [x if x!=4 else 3 for x in finger_states]
+            if temp['finger states'] == new_finger_states:
+                count += 1
         if temp['direction'] == direction:
             count += 1
         if temp['boundary'] is None:

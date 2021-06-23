@@ -4,17 +4,25 @@ import numpy as np
 
 from hand import HandDetector
 from utils.templates import Gesture
-from utils.utils import calculate_angle, get_finger_state, map_gesture
+from utils.utils import calculate_angle, get_thumb_state, get_finger_state, map_gesture
 from utils.utils import draw_bounding_box
 
 
-THUMB_THRESH = [5.4, 5.4]
-NON_THUMB_THRESH = [5.5, 5.6]
+THUMB_THRESH = 5.5
+THUMB_MCP_THRESH = 2.7
+NON_THUMB_THRESH = [8.4, 8.1, 6.9, 6]
 
-STATES = {
+THUMB_STATES ={
     0: 'straight',
-    1: 'in-between',
-    2: 'bent'
+    1: 'bent',
+    2: 'closed'
+}
+NON_THUMB_STATES = {
+    0: 'straight',
+    1: 'claw',
+    2: 'bent',
+    3: 'closed',
+    4: 'clenched'
 }
 
 CAM_W = 1280
@@ -43,19 +51,27 @@ class GestureDetector:
                                  landmarks[joints[j+1]],
                                  landmarks[joints[j+2]]) for j in range(3)]
             )
-            acc_angle = joint_angles[i, 1:].sum()
-
             if i == 0:
-                threshold = THUMB_THRESH
+                acc_angle = joint_angles[i, 1:].sum()
+                finger_states[i] = get_thumb_state(acc_angle,
+                                                   joint_angles[i, 1],
+                                                   THUMB_THRESH,
+                                                   THUMB_MCP_THRESH)
             else:
-                threshold = NON_THUMB_THRESH
-            
-            finger_states[i] = get_finger_state(acc_angle, threshold)
+                acc_angle = joint_angles[i].sum()
+                finger_states[i] = get_finger_state(acc_angle, NON_THUMB_THRESH)
 
+            # pt = landmarks[joints[4]]
+            # cv2.putText(img, f'{round(acc_angle,2)}', (pt[0]+5,pt[1]+5), 0, 0.5, (0,255,255), 2)
             # pt = landmarks[joints[3]]
-            # cv2.putText(img, f'{round(acc_angle,2)}', (pt[0]+5,pt[1]+5), 0, 0.5, TEXT_COLOR, 2)
+            # cv2.putText(img, f'{round(joint_angles[i, 2],2)}', (pt[0]+5,pt[1]+5), 0, 0.5, (0,255,0), 2)
+            # pt = landmarks[joints[2]]
+            # cv2.putText(img, f'{round(joint_angles[i, 1],2)}', (pt[0]+5,pt[1]+5), 0, 0.5, (255,0,0), 2)
             # pt = landmarks[joints[1]]
             # cv2.putText(img, f'{round(joint_angles[i, 0],2)}', (pt[0]+5,pt[1]+5), 0, 0.5, TEXT_COLOR, 2)
+
+            # pt = landmarks[joints[4]]
+            # cv2.putText(img, f'{finger_states[i]}', (pt[0]+5,pt[1]+5), 0, 0.5, (0,255,255), 2)
         
         return finger_states
     
