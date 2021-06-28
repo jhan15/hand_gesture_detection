@@ -66,7 +66,9 @@ class HandDetector:
     def draw_landmarks(self, img):
         if self.results.multi_hand_landmarks:
             for landmarks in self.results.multi_hand_landmarks:
-                self.mp_drawing.draw_landmarks(img, landmarks, self.mp_hands.HAND_CONNECTIONS)
+                self.mp_drawing.draw_landmarks(img, landmarks, self.mp_hands.HAND_CONNECTIONS,
+                                               self.mp_drawing.DrawingSpec(color=(113,44,4), thickness=5, circle_radius=6),
+                                               self.mp_drawing.DrawingSpec(color=(5,214,248), thickness=3, circle_radius=3))
 
 
 def main():

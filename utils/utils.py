@@ -19,6 +19,85 @@ def find_boundary_lm(landmarks):
     return [lm_x_max, lm_x_min, lm_y_max, lm_y_min]
 
 
+def check_hand_direction(landmarks, label):
+    """ Check hand's direction and facing. """
+    direction = None
+    facing = None
+    mcp_joints = [5, 9, 13, 17]
+    wrist = landmarks[0]
+    thumb_mcp = landmarks[1]
+    pinky_mcp = landmarks[17]
+
+    mcp_x_avg = np.mean(landmarks[mcp_joints, 0])
+    mcp_y_avg = np.mean(landmarks[mcp_joints, 1])
+
+    mcp_wrist_x = np.absolute(mcp_x_avg - wrist[0])
+    mcp_wrist_y = np.absolute(mcp_y_avg - wrist[1])
+
+    if mcp_wrist_x > mcp_wrist_y:
+        if mcp_x_avg < wrist[0]:
+            direction = 'left'
+            if label == 'Left':
+                facing = 'front' if thumb_mcp[1] < pinky_mcp[1] else 'back'
+            else:
+                facing = 'front' if thumb_mcp[1] > pinky_mcp[1] else 'back'
+        else:
+            direction = 'right'
+            if label == 'Left':
+                facing = 'front' if thumb_mcp[1] > pinky_mcp[1] else 'back'
+            else:
+                facing = 'front' if thumb_mcp[1] < pinky_mcp[1] else 'back'
+    else:
+        if mcp_y_avg < wrist[1]:
+            direction = 'up'
+            if label == 'Left':
+                facing = 'front' if thumb_mcp[0] > pinky_mcp[0] else 'back'
+            else:
+                facing = 'front' if thumb_mcp[0] < pinky_mcp[0] else 'back'
+        else:
+            direction = 'down'
+            if label == 'Left':
+                facing = 'front' if thumb_mcp[0] < pinky_mcp[0] else 'back'
+            else:
+                facing = 'front' if thumb_mcp[0] > pinky_mcp[0] else 'back'
+    
+    return direction, facing
+
+
+def two_landmark_distance(vec1, vec2, dim=3):
+    """ Calculate the distance between two landmarks. """
+    vec = vec2[:dim] - vec1[:dim]
+    distance = np.linalg.norm(vec)
+    
+    return distance
+
+
+def calculate_angle(joints):
+    """ Calculate the angle of three points. """
+    vec1 = joints[0][:2] - joints[1][:2]
+    vec2 = joints[2][:2] - joints[1][:2]
+    cosine_angle = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+    angle = np.arccos(cosine_angle)
+
+    return angle
+
+
+def calculate_thumb_angle(joints, label, facing):
+    vec1 = joints[0][:2] - joints[1][:2]
+    vec2 = joints[2][:2] - joints[1][:2]
+
+    if label == 'Left':
+        cross = np.cross(vec1, vec2) if facing == 'front' else np.cross(vec2, vec1)
+    else:
+        cross = np.cross(vec2, vec1) if facing == 'front' else np.cross(vec1, vec2)
+    dot = np.dot(vec1, vec2)
+    angle = np.arctan2(cross, dot)
+    if angle < 0:
+        angle += 2 * np.pi
+    
+    return angle
+
+
 def get_finger_state(joint_angles, threshold, compa_len_thres=None, compa_len=None):
     """ Define a finger's state by it's joint angles. """
     acc_angle = joint_angles.sum()
@@ -38,63 +117,6 @@ def get_finger_state(joint_angles, threshold, compa_len_thres=None, compa_len=No
             finger_state = 1
     
     return finger_state
-
-
-def check_hand_direction(landmarks, label):
-    """ Check hand's direction. """
-    direction = None
-    facing = None
-    mcp_joints = [1, 5, 9, 13, 17]
-    wrist = landmarks[0]
-
-    finger_mcp_x = np.mean(landmarks[mcp_joints[1:], 0])
-    finger_mcp_y = np.mean(landmarks[mcp_joints[1:], 1])
-
-    finger_wrist_x = np.absolute(finger_mcp_x - wrist[0])
-    finger_wrist_y = np.absolute(finger_mcp_y - wrist[1])
-
-    if finger_wrist_x > finger_wrist_y:
-        if finger_mcp_x < wrist[0]:
-            direction = 'left'
-            if label == 'Left':
-                facing = 'front' if landmarks[mcp_joints[0]][1] < landmarks[mcp_joints[4]][1] else 'back'
-            else:
-                facing = 'front' if landmarks[mcp_joints[0]][1] > landmarks[mcp_joints[4]][1] else 'back'
-        else:
-            direction = 'right'
-            if label == 'Left':
-                facing = 'front' if landmarks[mcp_joints[0]][1] > landmarks[mcp_joints[4]][1] else 'back'
-            else:
-                facing = 'front' if landmarks[mcp_joints[0]][1] < landmarks[mcp_joints[4]][1] else 'back'
-    else:
-        if finger_mcp_y < wrist[1]:
-            direction = 'up'
-            if label == 'Left':
-                facing = 'front' if landmarks[mcp_joints[0]][0] > landmarks[mcp_joints[4]][0] else 'back'
-            else:
-                facing = 'front' if landmarks[mcp_joints[0]][0] < landmarks[mcp_joints[4]][0] else 'back'
-        else:
-            direction = 'down'
-            if label == 'Left':
-                facing = 'front' if landmarks[mcp_joints[0]][0] < landmarks[mcp_joints[4]][0] else 'back'
-            else:
-                facing = 'front' if landmarks[mcp_joints[0]][0] > landmarks[mcp_joints[4]][0] else 'back'
-    
-    return direction, facing
-
-
-def draw_bounding_box(landmarks, detected_gesture, img, tor=40):
-    """ Draw a bounding box of detected hand with gesture label. """
-    xs = landmarks[:,0]
-    ys = landmarks[:,1]
-    x_max, x_min = np.max(xs), np.min(xs)
-    y_max, y_min = np.max(ys), np.min(ys)
-    cv2.rectangle(img, (x_min-tor,y_min-tor), (x_max+tor,y_max+tor),
-                                BOX_COLOR, 2, lineType=cv2.LINE_AA)
-    cv2.rectangle(img, (x_min-tor,y_min-2*tor), (x_max+tor,y_min-tor),
-                                BOX_COLOR, -1, lineType=cv2.LINE_AA)
-    cv2.putText(img, f'{detected_gesture}', (x_min-tor+5,y_min-tor-10), 0, 1,
-                                LINE_COLOR, 3, lineType=cv2.LINE_AA)
 
 
 def map_gesture(finger_states, direction, boundary, gestures, spec=4):
@@ -135,38 +157,18 @@ def map_gesture(finger_states, direction, boundary, gestures, spec=4):
     return detected_gesture
 
 
-def calculate_angle(joints):
-    """ Calculate the angle of three points. """
-    vec1 = joints[0][:2] - joints[1][:2]
-    vec2 = joints[2][:2] - joints[1][:2]
-    cosine_angle = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
-    angle = np.arccos(cosine_angle)
-
-    return angle
-
-
-def calculate_thumb_angle(joints, label, facing):
-    vec1 = joints[0][:2] - joints[1][:2]
-    vec2 = joints[2][:2] - joints[1][:2]
-
-    if label == 'Left':
-        cross = np.cross(vec1, vec2) if facing == 'front' else np.cross(vec2, vec1)
-    else:
-        cross = np.cross(vec2, vec1) if facing == 'front' else np.cross(vec1, vec2)
-    dot = np.dot(vec1, vec2)
-    angle = np.arctan2(cross, dot)
-    if angle < 0:
-        angle += 2 * np.pi
-    
-    return angle
-
-
-def two_landmark_distance(vec1, vec2, dim=3):
-    """ Calculate the distance between two landmarks. """
-    vec = vec2[:dim] - vec1[:dim]
-    distance = np.linalg.norm(vec)
-    
-    return distance
+def draw_bounding_box(landmarks, detected_gesture, img, tor=40):
+    """ Draw a bounding box of detected hand with gesture label. """
+    xs = landmarks[:,0]
+    ys = landmarks[:,1]
+    x_max, x_min = np.max(xs), np.min(xs)
+    y_max, y_min = np.max(ys), np.min(ys)
+    cv2.rectangle(img, (x_min-tor,y_min-tor), (x_max+tor,y_max+tor),
+                                BOX_COLOR, 2, lineType=cv2.LINE_AA)
+    cv2.rectangle(img, (x_min-tor,y_min-2*tor), (x_max+tor,y_min-tor),
+                                BOX_COLOR, -1, lineType=cv2.LINE_AA)
+    cv2.putText(img, f'{detected_gesture}', (x_min-tor+5,y_min-tor-10), 0, 1,
+                                LINE_COLOR, 3, lineType=cv2.LINE_AA)
 
 
 #########################################################################
