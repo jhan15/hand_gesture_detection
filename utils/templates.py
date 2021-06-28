@@ -1,5 +1,5 @@
 class Gesture:
-    def __init__(self, handedness):
+    def __init__(self, label):
         self.gestures = {
             'One':          {'finger states':   [2, 0, 3, 3, 3],
                              'direction':       'up',
@@ -26,10 +26,10 @@ class Gesture:
                              'direction':       'up',
                              'boundary':        None},
             'Thumbs-up':    {'finger states':   [0, 3, 3, 3, 3],
-                             'direction':       'left' if handedness == 'Right' else 'right',
+                             'direction':       'left' if label == 'Right' else 'right',
                              'boundary':        {3: 4}},
             'Thumbs-down':  {'finger states':   [0, 3, 3, 3, 3],
-                             'direction':       'left' if handedness == 'Right' else 'right',
+                             'direction':       'left' if label == 'Right' else 'right',
                              'boundary':        {2: 4}},
             'Rock':         {'finger states':   [2, 0, 3, 3, 0],
                             'direction':       'up',

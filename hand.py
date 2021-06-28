@@ -1,6 +1,7 @@
 import cv2
 import mediapipe as mp
 import time
+import numpy as np
 
 from utils.utils import check_hand_direction, find_boundary_lm
 
@@ -55,9 +56,10 @@ class HandDetector:
                     cz = int((lm.z - wrist_z) * w)
                     lm_list.append([cx, cy, cz])
                 
-                decoded_hands[i]['lm'] = lm_list
-                decoded_hands[i]['direction'] = check_hand_direction(lm_list)
-                decoded_hands[i]['boundary'] = find_boundary_lm(lm_list)
+                lm_array = np.array(lm_list)
+                decoded_hands[i]['lm'] = lm_array
+                decoded_hands[i]['direction'], decoded_hands[i]['facing'] = check_hand_direction(lm_array, decoded_hands[i]['label'])
+                decoded_hands[i]['boundary'] = find_boundary_lm(lm_array)
         
         return decoded_hands
     
