@@ -10,7 +10,7 @@ from utils.utils import map_gesture, draw_bounding_box
 
 
 THUMB_THRESH = [9, 8]
-NON_THUMB_THRESH = [8.6, 8, 6.6, 6.1]
+NON_THUMB_THRESH = [8.6, 7.8, 6.6, 6.1]
 
 THUMB_STATES ={
     0: ['straight', (121,49,255)],
