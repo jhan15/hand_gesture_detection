@@ -205,3 +205,4 @@ def check_trajectory(trajectory, direction):
         return all(i < j for i, j in zip(trajectory, trajectory[1:]))
     if direction == -1:
         return all(i > j for i, j in zip(trajectory, trajectory[1:]))
+        

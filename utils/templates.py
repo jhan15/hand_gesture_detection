@@ -38,3 +38,4 @@ class Gesture:
                              'direction':       'up',
                              'boundary':        None}
         }
+        
