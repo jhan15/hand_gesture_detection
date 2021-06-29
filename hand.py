@@ -58,7 +58,8 @@ class HandDetector:
                 
                 lm_array = np.array(lm_list)
                 decoded_hands[i]['lm'] = lm_array
-                decoded_hands[i]['direction'], decoded_hands[i]['facing'] = check_hand_direction(lm_array, decoded_hands[i]['label'])
+                decoded_hands[i]['direction'], decoded_hands[i]['facing'] = check_hand_direction(lm_array,
+                                                                                decoded_hands[i]['label'])
                 decoded_hands[i]['boundary'] = find_boundary_lm(lm_array)
         
         return decoded_hands
