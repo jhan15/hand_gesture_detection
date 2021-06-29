@@ -64,7 +64,7 @@ def check_hand_direction(landmarks, label):
     return direction, facing
 
 
-def two_landmark_distance(vec1, vec2, dim=3):
+def two_landmark_distance(vec1, vec2, dim=2):
     """ Calculate the distance between two landmarks. """
     vec = vec2[:dim] - vec1[:dim]
     distance = np.linalg.norm(vec)
@@ -98,7 +98,7 @@ def calculate_thumb_angle(joints, label, facing):
     return angle
 
 
-def get_finger_state(joint_angles, threshold, compa_len_thres=None, compa_len=None):
+def get_finger_state(joint_angles, threshold):
     """ Define a finger's state by it's joint angles. """
     acc_angle = joint_angles.sum()
     finger_state = None
@@ -111,10 +111,6 @@ def get_finger_state(joint_angles, threshold, compa_len_thres=None, compa_len=No
         if new_threshold[i] > acc_angle >= new_threshold[i+1]:
             finger_state = i
             break
-    
-    if compa_len:
-        if finger_state == 0 and compa_len < compa_len_thres:
-            finger_state = 1
     
     return finger_state
 

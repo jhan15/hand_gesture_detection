@@ -4,8 +4,9 @@ import numpy as np
 
 from hand import HandDetector
 from utils.templates import Gesture
-from utils.utils import calculate_angle, calculate_thumb_angle, get_finger_state, map_gesture
-from utils.utils import draw_bounding_box, two_landmark_distance
+from utils.utils import two_landmark_distance
+from utils.utils import calculate_angle, calculate_thumb_angle, get_finger_state
+from utils.utils import map_gesture, draw_bounding_box
 
 
 THUMB_THRESH = [9, 8]
@@ -24,7 +25,7 @@ NON_THUMB_STATES = {
     4: 'clenched'
 }
 
-COMPA_LEN_THRESH = [0.76, 0.88, 0.85, 0.65]
+BENT_RATIO_THRESH = [0.76, 0.88, 0.85, 0.65]
 
 CAM_W = 1280
 CAM_H = 800
@@ -33,7 +34,7 @@ TEXT_COLOR = (102,51,0)
 
 class GestureDetector:
     def __init__(self, static_image_mode=False, max_num_hands=2,
-                min_detection_confidence=0.8, min_tracking_confidence=0.5):
+                 min_detection_confidence=0.8, min_tracking_confidence=0.5):
         
         self.hand_detector = HandDetector(static_image_mode,
                                           max_num_hands,
@@ -41,28 +42,34 @@ class GestureDetector:
                                           min_tracking_confidence)
     
     
-    def check_finger_states(self, hand, img):
+    def check_finger_states(self, hand):
         landmarks = hand['lm']
         label = hand['label']
         facing = hand['facing']
 
         finger_states = [None] * 5
-        joint_angles = np.zeros((5,3))
+        joint_angles = np.zeros((5,3)) # 5 fingers and 3 angles each
 
         # wrist to index finger mcp
-        d1 = two_landmark_distance(landmarks[0], landmarks[5], dim=2)
+        d1 = two_landmark_distance(landmarks[0], landmarks[5])
         
+        # loop for 5 fingers
         for i in range(5):
             joints = [0, 4*i+1, 4*i+2, 4*i+3, 4*i+4]
             if i == 0:
-                joint_angles[i] = np.array([calculate_thumb_angle(landmarks[joints[j:j+3]],
-                                                                  label,
-                                                                  facing) for j in range(3)])
+                joint_angles[i] = np.array(
+                    [calculate_thumb_angle(landmarks[joints[j:j+3]], label, facing) for j in range(3)]
+                )
                 finger_states[i] = get_finger_state(joint_angles[i], THUMB_THRESH)
             else:
-                joint_angles[i] = np.array([calculate_angle(landmarks[joints[j:j+3]]) for j in range(3)])
-                d2 = two_landmark_distance(landmarks[joints[1]], landmarks[joints[4]], dim=2)
-                finger_states[i] = get_finger_state(joint_angles[i], NON_THUMB_THRESH, COMPA_LEN_THRESH[i-1], d2/d1)
+                joint_angles[i] = np.array(
+                    [calculate_angle(landmarks[joints[j:j+3]]) for j in range(3)]
+                )
+                d2 = two_landmark_distance(landmarks[joints[1]], landmarks[joints[4]])
+                finger_states[i] = get_finger_state(joint_angles[i], NON_THUMB_THRESH)
+                
+                if finger_states[i] == 0 and d2/d1 < BENT_RATIO_THRESH[i-1]:
+                    finger_states[i] = 1
         
         return finger_states
     
@@ -74,11 +81,13 @@ class GestureDetector:
         if hands:
             hand = hands[-1]
             ges = Gesture(hand['label'])
-            finger_states = self.check_finger_states(hand, img)
+            finger_states = self.check_finger_states(hand)
+            
             detected_gesture = map_gesture(finger_states,
                                            hand['direction'],
                                            hand['boundary'],
                                            ges.gestures)
+            
             if detected_gesture:
                 draw_bounding_box(hand['lm'], detected_gesture, img)
 
