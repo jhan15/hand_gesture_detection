@@ -68,8 +68,8 @@ class HandDetector:
         if self.results.multi_hand_landmarks:
             for landmarks in self.results.multi_hand_landmarks:
                 self.mp_drawing.draw_landmarks(img, landmarks, self.mp_hands.HAND_CONNECTIONS,
-                    self.mp_drawing.DrawingSpec(color=(113,44,4), thickness=6, circle_radius=6),
-                    self.mp_drawing.DrawingSpec(color=(5,214,248), thickness=3, circle_radius=3))
+                    self.mp_drawing.DrawingSpec(color=(51,255,51), thickness=6, circle_radius=2), # (113,44,4)
+                    self.mp_drawing.DrawingSpec(color=(255,255,255), thickness=2, circle_radius=2)) # (5,214,248)
 
 
 def main():
@@ -101,4 +101,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    

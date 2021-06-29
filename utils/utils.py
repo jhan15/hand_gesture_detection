@@ -76,8 +76,10 @@ def calculate_angle(joints):
     """ Calculate the angle of three points. """
     vec1 = joints[0][:2] - joints[1][:2]
     vec2 = joints[2][:2] - joints[1][:2]
-    cosine_angle = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
-    angle = np.arccos(cosine_angle)
+
+    cross = np.cross(vec1, vec2)
+    dot = np.dot(vec1, vec2)
+    angle = np.absolute(np.arctan2(cross, dot))
 
     return angle
 
@@ -205,4 +207,3 @@ def check_trajectory(trajectory, direction):
         return all(i < j for i, j in zip(trajectory, trajectory[1:]))
     if direction == -1:
         return all(i > j for i, j in zip(trajectory, trajectory[1:]))
-        

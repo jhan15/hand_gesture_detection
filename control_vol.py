@@ -5,9 +5,9 @@ import time
 from osascript import osascript
 
 from hand import HandDetector
-from utils.utils import draw_vol_bar, draw_landmarks, two_landmark_distance
+from gesture import GestureDetector
+from utils.utils import two_landmark_distance, draw_vol_bar, draw_landmarks
 from utils.utils import update_trajectory, check_trajectory
-from utils.gestures import Gesture
 
 
 CAM_W = 1280                                # camera width

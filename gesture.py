@@ -13,22 +13,22 @@ THUMB_THRESH = [9, 8]
 NON_THUMB_THRESH = [8.6, 8, 6.6, 6.1]
 
 THUMB_STATES ={
-    0: 'straight',
-    1: 'bent',
-    2: 'closed'
+    0: ['straight', (121,49,255)],
+    1: ['bent', (243,166,56)],
+    2: ['closed', (107,29,92)]
 }
 NON_THUMB_STATES = {
-    0: 'straight',
-    1: 'claw',
-    2: 'bent',
-    3: 'closed',
-    4: 'clenched'
+    0: ['straight', (121,49,255)],
+    1: ['claw', (76,166,255)],
+    2: ['bent', (243,166,56)],
+    3: ['closed', (178,30,180)],
+    4: ['clenched', (107,29,92)]
 }
 
 BENT_RATIO_THRESH = [0.76, 0.88, 0.85, 0.65]
 
-CAM_W = 1280
-CAM_H = 800
+CAM_W = 640
+CAM_H = 480
 TEXT_COLOR = (102,51,0)
 
 
@@ -73,6 +73,14 @@ class GestureDetector:
         
         return finger_states
     
+    def draw_fingertips(self, landmarks, finger_states, img):
+        for i in range(5):
+            fingertip = landmarks[4*(i+1)]
+            color = THUMB_STATES[finger_states[i]][1] if i == 0 else NON_THUMB_STATES[finger_states[i]][1]
+            cv2.circle(img, fingertip[:2], 10, color, -1, lineType=cv2.LINE_AA)
+            cv2.circle(img, fingertip[:2], 10, (255,255,255), 2, lineType=cv2.LINE_AA)
+
+    
     def detect_gestures(self, img):
         hands = self.hand_detector.detect_hands(img)
         self.hand_detector.draw_landmarks(img)
@@ -82,6 +90,7 @@ class GestureDetector:
             hand = hands[-1]
             ges = Gesture(hand['label'])
             finger_states = self.check_finger_states(hand)
+            self.draw_fingertips(hand['lm'], finger_states, img)
             
             detected_gesture = map_gesture(finger_states,
                                            hand['direction'],
