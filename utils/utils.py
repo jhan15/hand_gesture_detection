@@ -8,6 +8,19 @@ LINE_COLOR = (255,255,255)
 LM_COLOR = (255,51,255)
 BOX_COLOR = (153,0,153)
 
+THUMB_STATES ={
+    0: ['straight', (121,49,255)],
+    1: ['bent', (243,166,56)],
+    2: ['closed', (107,29,92)]
+}
+NON_THUMB_STATES = {
+    0: ['straight', (121,49,255)],
+    1: ['claw', (76,166,255)],
+    2: ['bent', (243,166,56)],
+    3: ['closed', (178,30,180)],
+    4: ['clenched', (107,29,92)]
+}
+
 
 def find_boundary_lm(landmarks):
     """ Get the landmarks/joints with maximum x, minimum x, maximum y, and minimum y values. """
@@ -155,15 +168,28 @@ def map_gesture(finger_states, direction, boundary, gestures, spec=4):
     return detected_gesture
 
 
-def draw_bounding_box(landmarks, detected_gesture, img, tor=40):
+def draw_fingertips(landmarks, finger_states, img):
+    w = img.shape[1]
+    r = int(w / 60)
+    for i in range(5):
+        fingertip = landmarks[4*(i+1)]
+        color = THUMB_STATES[finger_states[i]][1] if i == 0 else NON_THUMB_STATES[finger_states[i]][1]
+        cv2.circle(img, fingertip[:2], r, color, -1, lineType=cv2.LINE_AA)
+        cv2.circle(img, fingertip[:2], r+1, (255,255,255), int(r/5), lineType=cv2.LINE_AA)
+
+
+def draw_bounding_box(landmarks, detected_gesture, img):
     """ Draw a bounding box of detected hand with gesture label. """
+    w = img.shape[1]
+    tor = int(w / 30)
+
     xs = landmarks[:,0]
     ys = landmarks[:,1]
     x_max, x_min = np.max(xs), np.min(xs)
     y_max, y_min = np.max(ys), np.min(ys)
     cv2.rectangle(img, (x_min-tor,y_min-tor), (x_max+tor,y_max+tor),
                                 BOX_COLOR, 2, lineType=cv2.LINE_AA)
-    cv2.rectangle(img, (x_min-tor,y_min-2*tor), (x_max+tor,y_min-tor),
+    cv2.rectangle(img, (x_min-tor,y_min-tor-40), (x_max+tor,y_min-tor),
                                 BOX_COLOR, -1, lineType=cv2.LINE_AA)
     cv2.putText(img, f'{detected_gesture}', (x_min-tor+5,y_min-tor-10), 0, 1,
                                 LINE_COLOR, 3, lineType=cv2.LINE_AA)
