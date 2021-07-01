@@ -17,10 +17,23 @@ $ pip install -r requirements.txt
 
 ## Usage
 
+### Hand detector
+
 ```bash
-$ python3 vol_control.py --control pinch_conti # continuous control
-                                   pinch_step  # step control
-                                   none        # display all hand landmarks
+$ python3 hand.py --max_num_hands 2
+```
+
+### Gesture detector
+
+```bash
+$ python3 gesture.py --mode single
+```
+
+### Volume controller
+
+```bash
+$ python3 vol_controller.py --control continuous # continuous control
+                                      step # step control
 ```
 
 ### Demo
