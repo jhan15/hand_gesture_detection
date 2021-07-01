@@ -1,3 +1,6 @@
+[![GitHub issues](https://img.shields.io/github/issues/jhan15/facial_emotion_recognition)](https://github.com/jhan15/facial_emotion_recognition/issues)
+![GitHub last commit](https://img.shields.io/github/last-commit/jhan15/facial_emotion_recognition?color=ff69b4)
+
 # gesture_vol_control
 It's a project to control the volume using different gestures. Gesture detection using Google's [mediapipe API](https://github.com/google/mediapipe).
 
