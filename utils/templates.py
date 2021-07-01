@@ -1,3 +1,4 @@
+# Pre-defined hand gesture templates
 class Gesture:
     def __init__(self, label):
         self.gestures = {
