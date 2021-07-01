@@ -28,9 +28,8 @@ class GestureDetector:
                                           min_detection_confidence,
                                           min_tracking_confidence)
     
-    
     def check_finger_states(self, hand):
-        landmarks = hand['lm']
+        landmarks = hand['landmarks']
         label = hand['label']
         facing = hand['facing']
 
@@ -69,7 +68,7 @@ class GestureDetector:
             hand = hands[-1]
             ges = Gesture(hand['label'])
             finger_states = self.check_finger_states(hand)
-            draw_fingertips(hand['lm'], finger_states, img)
+            draw_fingertips(hand['landmarks'], finger_states, img)
             
             detected_gesture = map_gesture(finger_states,
                                            hand['direction'],
@@ -77,7 +76,7 @@ class GestureDetector:
                                            ges.gestures)
             
             if detected_gesture:
-                draw_bounding_box(hand['lm'], detected_gesture, img)
+                draw_bounding_box(hand['landmarks'], detected_gesture, img)
 
         return detected_gesture
 

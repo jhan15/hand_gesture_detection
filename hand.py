@@ -11,6 +11,13 @@ CAM_H = 800
 TEXT_COLOR = (102, 51, 0)
 
 
+# A hand detector based on mediapipe, it can detect hands and return several features of hands:
+#   'index'     - the index number of hands, -1 is the firstly detected one
+#   'label'     - handedness of hands
+#   'landmarks' - the coordinates of 21 hand joints
+#   'direction' - the direction that hands pointing, 'up', 'down', 'left', 'right'
+#   'facing'    - the facing of hands, 'front', 'back', 'front' means the palm is facing the camera
+#   'boundary'  - the boundary joints from 'up', 'down', 'left', 'right'
 class HandDetector:
     def __init__(self, static_image_mode=False, max_num_hands=2,
                 min_detection_confidence=0.8, min_tracking_confidence=0.5):
@@ -57,10 +64,13 @@ class HandDetector:
                     lm_list.append([cx, cy, cz])
                 
                 lm_array = np.array(lm_list)
-                decoded_hands[i]['lm'] = lm_array
-                decoded_hands[i]['direction'], decoded_hands[i]['facing'] = check_hand_direction(lm_array,
-                                                                                decoded_hands[i]['label'])
-                decoded_hands[i]['boundary'] = find_boundary_lm(lm_array)
+                direction, facing = check_hand_direction(lm_array, decoded_hands[i]['label'])
+                boundary = find_boundary_lm(lm_array)
+
+                decoded_hands[i]['landmarks'] = lm_array
+                decoded_hands[i]['direction'] = direction
+                decoded_hands[i]['facing'] = facing
+                decoded_hands[i]['boundary'] = boundary
         
         return decoded_hands
     
