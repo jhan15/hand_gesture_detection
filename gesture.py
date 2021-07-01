@@ -68,7 +68,7 @@ class GestureDetector:
         
         return finger_states
     
-    def detect_gesture(self, img, mode, target=None):
+    def detect_gesture(self, img, mode, target_gesture=''):
         hands = self.hand_detector.detect_hands(img)
         self.hand_detector.draw_landmarks(img)
         detected_gesture = None
@@ -87,7 +87,7 @@ class GestureDetector:
                                                ges.gestures)
                 
                 if detected_gesture:
-                    if target is None or (target is not None and detected_gesture == target):
+                    if target_gesture == '' or detected_gesture == target_gesture:
                         draw_bounding_box(hand['landmarks'], detected_gesture, img)
                 
             if mode == 'double' and len(hands) == 2:
@@ -96,7 +96,7 @@ class GestureDetector:
         return detected_gesture
 
 
-def main(mode='single'):
+def main(mode='single', target_gesture=''):
     cap = cv2.VideoCapture(0)
     cap.set(3, CAM_W)
     cap.set(4, CAM_H)
@@ -107,7 +107,7 @@ def main(mode='single'):
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        ges_detector.detect_gesture(img, mode)
+        ges_detector.detect_gesture(img, mode, target_gesture)
         
         ctime = time.time()
         fps = 1 / (ctime - ptime)
@@ -126,6 +126,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', type=str, default='single',
                         help='single/double-hand gestures (default: single)')
+    parser.add_argument('--target_gesture', type=str, default='',
+                        help='detect a specific gesture (default: empty)')
     opt = parser.parse_args()
 
     main(**vars(opt))
