@@ -131,7 +131,7 @@ def get_finger_state(joint_angles, threshold):
     return finger_state
 
 
-def map_gesture(finger_states, direction, boundary, gestures):
+def map_gesture(landmarks, finger_states, direction, boundary, gestures):
     """ Map detected gesture fetures to a pre-defined gesture template. """
     detected_gesture = None
     for ges, temp in gestures.items():
@@ -145,11 +145,20 @@ def map_gesture(finger_states, direction, boundary, gestures):
                 break
         if flag == 0:
             count += 1
-        
         # check direction
         if temp['direction'] == direction:
             count += 1
-        
+        # check overlap
+        if temp['overlap'] is None:
+            count += 1
+        else:
+            flag = 0
+            for lm1, lm2 in temp['overlap']:
+                if two_landmark_distance(landmarks[lm1], landmarks[lm2]) > 20:
+                    flag = 1
+                    break
+            if flag == 0:
+                count += 1
         # check boundary
         if temp['boundary'] is None:
             count += 1
@@ -162,7 +171,7 @@ def map_gesture(finger_states, direction, boundary, gestures):
             if flag == 0:
                 count += 1
         
-        if count == 3:
+        if count == 4:
             detected_gesture = ges
             break
     

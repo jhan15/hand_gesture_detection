@@ -18,7 +18,7 @@ from utils.utils import map_gesture, draw_bounding_box, draw_fingertips
 
 
 THUMB_THRESH = [9, 8]
-NON_THUMB_THRESH = [8.6, 7.8, 6.6, 6.2]
+NON_THUMB_THRESH = [8.6, 7.8, 6.6, 6.1]
 
 BENT_RATIO_THRESH = [0.76, 0.88, 0.85, 0.65]
 
@@ -73,7 +73,8 @@ class GestureDetector:
         finger_states = self.check_finger_states(hand)
         draw_fingertips(hand['landmarks'], finger_states, img)
         
-        detected_gesture = map_gesture(finger_states,
+        detected_gesture = map_gesture(hand['landmarks'],
+                                       finger_states,
                                        hand['direction'],
                                        hand['boundary'],
                                        ges.gestures)
