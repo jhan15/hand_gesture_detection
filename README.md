@@ -2,7 +2,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/jhan15/hand_gesture_detection?color=ff69b4)
 
 # hand_gesture_detection
-It's a project of gesture detection and some applications. Hand detection using Google's [mediapipe API](https://github.com/google/mediapipe).
+It's a project of hand gesture detection and some applications. Hand detection using Google's [mediapipe API](https://github.com/google/mediapipe).
 
 
 ## Requirements
