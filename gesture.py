@@ -5,6 +5,7 @@ Usage:
     $ python3 gesture.py
 """
 
+import argparse
 import cv2
 import time
 import numpy as np
@@ -67,29 +68,31 @@ class GestureDetector:
         
         return finger_states
     
-    def detect_gestures(self, img):
+    def detect_gestures(self, img, mode):
         hands = self.hand_detector.detect_hands(img)
         self.hand_detector.draw_landmarks(img)
         detected_gesture = None
 
         if hands:
-            hand = hands[-1]
-            ges = Gesture(hand['label'])
-            finger_states = self.check_finger_states(hand)
-            draw_fingertips(hand['landmarks'], finger_states, img)
-            
-            detected_gesture = map_gesture(finger_states,
-                                           hand['direction'],
-                                           hand['boundary'],
-                                           ges.gestures)
-            
-            if detected_gesture:
-                draw_bounding_box(hand['landmarks'], detected_gesture, img)
+            if mode == 'single':
+                hand = hands[-1]
+                ges = Gesture(hand['label'])
+                finger_states = self.check_finger_states(hand)
+                draw_fingertips(hand['landmarks'], finger_states, img)
+                
+                detected_gesture = map_gesture(finger_states,
+                                            hand['direction'],
+                                            hand['boundary'],
+                                            ges.gestures)
+                
+                if detected_gesture:
+                    draw_bounding_box(hand['landmarks'], detected_gesture, img)
+            # if mode == 'double' and len(hands) == 2:
 
         return detected_gesture
 
 
-def main():
+def main(mode='single'):
     cap = cv2.VideoCapture(0)
     cap.set(3, CAM_W)
     cap.set(4, CAM_H)
@@ -100,7 +103,7 @@ def main():
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        ges_detector.detect_gestures(img)
+        ges_detector.detect_gestures(img, mode)
         
         ctime = time.time()
         fps = 1 / (ctime - ptime)
@@ -116,5 +119,10 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--mode', type=str, default='single',
+                        help='single/double-hand gestures (default: single)')
+    opt = parser.parse_args()
+
+    main(**vars(opt))
     

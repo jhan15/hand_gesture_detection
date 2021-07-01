@@ -2,9 +2,10 @@
 Detect hands on streams.
 
 Usage:
-    $ python3 hand.py
+    $ python3 hand.py --max_num_hands 2
 """
 
+import argparse
 import cv2
 import mediapipe as mp
 import time
@@ -90,11 +91,11 @@ class HandDetector:
                     self.mp_drawing.DrawingSpec(color=(255,255,255), thickness=t, circle_radius=t))
 
 
-def main():
+def main(max_num_hands=2):
     cap = cv2.VideoCapture(0)
     cap.set(3, CAM_W)
     cap.set(4, CAM_H)
-    detector = HandDetector()
+    detector = HandDetector(max_num_hands=max_num_hands)
     ptime = 0
     ctime = 0
 
@@ -121,4 +122,9 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--max_num_hands', type=int, default=2,
+                        help='max number of hands (default: 2)')
+    opt = parser.parse_args()
+
+    main(**vars(opt))
