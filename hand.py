@@ -1,3 +1,10 @@
+"""
+Detect hands on streams.
+
+Usage:
+    $ python3 hand.py
+"""
+
 import cv2
 import mediapipe as mp
 import time
