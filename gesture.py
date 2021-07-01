@@ -2,7 +2,7 @@
 Detect hand gestures on streams.
 
 Usage:
-    $ python3 gesture.py
+    $ python3 gesture.py --mode 'single'
 """
 
 import argparse
