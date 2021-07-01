@@ -98,6 +98,7 @@ def calculate_angle(joints):
 
 
 def calculate_thumb_angle(joints, label, facing):
+    """ Calculate the angle of three points. """
     vec1 = joints[0][:2] - joints[1][:2]
     vec2 = joints[2][:2] - joints[1][:2]
 
@@ -169,6 +170,7 @@ def map_gesture(finger_states, direction, boundary, gestures, spec=4):
 
 
 def draw_fingertips(landmarks, finger_states, img):
+    """ Draw fingertips by finger states. """
     w = img.shape[1]
     r = int(w / 60)
     for i in range(5):
