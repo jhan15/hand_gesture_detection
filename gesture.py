@@ -68,7 +68,22 @@ class GestureDetector:
         
         return finger_states
     
-    def detect_gestures(self, img, mode):
+    def detect_gesture(self, hand, img):
+        ges = Gesture(hand['label'])
+        finger_states = self.check_finger_states(hand)
+        draw_fingertips(hand['landmarks'], finger_states, img)
+        
+        detected_gesture = map_gesture(finger_states,
+                                       hand['direction'],
+                                       hand['boundary'],
+                                       ges.gestures)
+        
+        if detected_gesture:
+            draw_bounding_box(hand['landmarks'], detected_gesture, img)
+        
+        return detected_gesture
+    
+    def detect_by_mode(self, img, mode):
         hands = self.hand_detector.detect_hands(img)
         self.hand_detector.draw_landmarks(img)
         detected_gesture = None
@@ -76,18 +91,9 @@ class GestureDetector:
         if hands:
             if mode == 'single':
                 hand = hands[-1]
-                ges = Gesture(hand['label'])
-                finger_states = self.check_finger_states(hand)
-                draw_fingertips(hand['landmarks'], finger_states, img)
-                
-                detected_gesture = map_gesture(finger_states,
-                                            hand['direction'],
-                                            hand['boundary'],
-                                            ges.gestures)
-                
-                if detected_gesture:
-                    draw_bounding_box(hand['landmarks'], detected_gesture, img)
-            # if mode == 'double' and len(hands) == 2:
+                detected_gesture = self.detect_gesture(hand, img)
+            if mode == 'double' and len(hands) == 2:
+                pass
 
         return detected_gesture
 
@@ -103,7 +109,7 @@ def main(mode='single'):
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        ges_detector.detect_gestures(img, mode)
+        ges_detector.detect_by_mode(img, mode)
         
         ctime = time.time()
         fps = 1 / (ctime - ptime)
