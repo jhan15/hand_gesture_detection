@@ -50,26 +50,26 @@ def check_hand_direction(landmarks, label):
     if mcp_wrist_x > mcp_wrist_y:
         if mcp_x_avg < wrist[0]:
             direction = 'left'
-            if label == 'Left':
+            if label == 'left':
                 facing = 'front' if thumb_mcp[1] < pinky_mcp[1] else 'back'
             else:
                 facing = 'front' if thumb_mcp[1] > pinky_mcp[1] else 'back'
         else:
             direction = 'right'
-            if label == 'Left':
+            if label == 'left':
                 facing = 'front' if thumb_mcp[1] > pinky_mcp[1] else 'back'
             else:
                 facing = 'front' if thumb_mcp[1] < pinky_mcp[1] else 'back'
     else:
         if mcp_y_avg < wrist[1]:
             direction = 'up'
-            if label == 'Left':
+            if label == 'left':
                 facing = 'front' if thumb_mcp[0] > pinky_mcp[0] else 'back'
             else:
                 facing = 'front' if thumb_mcp[0] < pinky_mcp[0] else 'back'
         else:
             direction = 'down'
-            if label == 'Left':
+            if label == 'left':
                 facing = 'front' if thumb_mcp[0] < pinky_mcp[0] else 'back'
             else:
                 facing = 'front' if thumb_mcp[0] > pinky_mcp[0] else 'back'
@@ -101,7 +101,7 @@ def calculate_thumb_angle(joints, label, facing):
     vec1 = joints[0][:2] - joints[1][:2]
     vec2 = joints[2][:2] - joints[1][:2]
 
-    if label == 'Left':
+    if label == 'left':
         cross = np.cross(vec1, vec2) if facing == 'front' else np.cross(vec2, vec1)
     else:
         cross = np.cross(vec2, vec1) if facing == 'front' else np.cross(vec1, vec2)

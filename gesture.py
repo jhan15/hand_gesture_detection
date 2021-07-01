@@ -1,3 +1,10 @@
+"""
+Detect hand gestures on streams.
+
+Usage:
+    $ python3 gesture.py
+"""
+
 import cv2
 import time
 import numpy as np
@@ -19,6 +26,7 @@ CAM_H = 480
 TEXT_COLOR = (102,51,0)
 
 
+# A hand gesture detector to detect different gestures according to pre-defined gesture templates.
 class GestureDetector:
     def __init__(self, static_image_mode=False, max_num_hands=2,
                  min_detection_confidence=0.8, min_tracking_confidence=0.5):

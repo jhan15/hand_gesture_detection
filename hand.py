@@ -20,7 +20,7 @@ TEXT_COLOR = (102, 51, 0)
 
 # A hand detector based on mediapipe, it can detect hands and return several features of hands:
 #   'index'     - the index number of hands, -1 is the firstly detected one
-#   'label'     - handedness of hands, 'Left', 'Right'
+#   'label'     - handedness of hands, 'left', 'right'
 #   'landmarks' - the coordinates of 21 hand joints
 #   'direction' - the direction that a hand is pointing, 'up', 'down', 'left', 'right'
 #   'facing'    - the facing of hands, 'front', 'back', 'front' means the palm is facing the camera
@@ -37,11 +37,10 @@ class HandDetector:
         self.mp_hands = mp.solutions.hands
         self.mp_drawing = mp.solutions.drawing_utils
 
-        self.hands = self.mp_hands.Hands(
-                                    self.static_image_mode,
-                                    self.max_num_hands,
-                                    self.min_detection_confidence,
-                                    self.min_tracking_confidence)
+        self.hands = self.mp_hands.Hands(self.static_image_mode,
+                                         self.max_num_hands,
+                                         self.min_detection_confidence,
+                                         self.min_tracking_confidence)
     
     def detect_hands(self, img):
         decoded_hands = None
@@ -59,7 +58,7 @@ class HandDetector:
                 hand_landmarks = self.results.multi_hand_landmarks[i]
 
                 decoded_hands[i]['index'] = handedness.classification[0].index
-                decoded_hands[i]['label'] = handedness.classification[0].label
+                decoded_hands[i]['label'] = handedness.classification[0].label.lower()
 
                 lm_list = list()
                 wrist_z = hand_landmarks.landmark[0].z
