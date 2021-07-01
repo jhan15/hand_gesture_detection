@@ -24,7 +24,7 @@ TEXT_COLOR = (102, 51, 0)
 #   'label'     - handedness of hands, 'left', 'right'
 #   'landmarks' - the coordinates of 21 hand joints
 #   'direction' - the direction that a hand is pointing, 'up', 'down', 'left', 'right'
-#   'facing'    - the facing of hands, 'front', 'back', 'front' means the palm is facing the camera
+#   'facing'    - the facing of hands, 'front', 'back' ('front' means the palm is facing the camera)
 #   'boundary'  - the boundary joints from 'up', 'down', 'left', 'right'
 class HandDetector:
     def __init__(self, static_image_mode=False, max_num_hands=2,
