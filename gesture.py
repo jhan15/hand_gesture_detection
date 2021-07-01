@@ -18,7 +18,7 @@ from utils.utils import map_gesture, draw_bounding_box, draw_fingertips
 
 
 THUMB_THRESH = [9, 8]
-NON_THUMB_THRESH = [8.6, 7.8, 6.6, 6.1]
+NON_THUMB_THRESH = [8.6, 7.8, 6.6, 6.2]
 
 BENT_RATIO_THRESH = [0.76, 0.88, 0.85, 0.65]
 

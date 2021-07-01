@@ -131,20 +131,20 @@ def get_finger_state(joint_angles, threshold):
     return finger_state
 
 
-def map_gesture(finger_states, direction, boundary, gestures, spec=4):
+def map_gesture(finger_states, direction, boundary, gestures):
     """ Map detected gesture fetures to a pre-defined gesture template. """
     detected_gesture = None
     for ges, temp in gestures.items():
         count = 0
         
         # check finger states
-        if spec in temp['finger states']:
-            if temp['finger states'] == finger_states:
-                count += 1
-        else:
-            new_finger_states = [x if x!=spec else (spec-1) for x in finger_states]
-            if temp['finger states'] == new_finger_states:
-                count += 1
+        flag = 0
+        for i in range(len(finger_states)):
+            if finger_states[i] not in temp['finger states'][i]:
+                flag = 1
+                break
+        if flag == 0:
+            count += 1
         
         # check direction
         if temp['direction'] == direction:
