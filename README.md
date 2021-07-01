@@ -1,8 +1,8 @@
 [![GitHub issues](https://img.shields.io/github/issues/jhan15/hand_gesture_detection)](https://github.com/jhan15/hand_gesture_detection/issues)
 ![GitHub last commit](https://img.shields.io/github/last-commit/jhan15/hand_gesture_detection?color=ff69b4)
 
-# gesture_vol_control
-It's a project to control the volume using different gestures. Gesture detection using Google's [mediapipe API](https://github.com/google/mediapipe).
+# hand_gesture_detection
+It's a project of gesture detection and some applications. Hand detection using Google's [mediapipe API](https://github.com/google/mediapipe).
 
 
 ## Requirements
@@ -10,8 +10,8 @@ It's a project to control the volume using different gestures. Gesture detection
 Python 3.8 or later with dependencies listed in [requirements.txt](https://github.com/jhan15/gesture_detection/blob/master/requirements.txt). To install run:
 
 ```bash
-$ git clone https://github.com/jhan15/gesture_vol_control.git
-$ cd gesture_vol_control
+$ git clone https://github.com/jhan15/hand_gesture_detection.git
+$ cd hand_gesture_detection
 $ pip install -r requirements.txt
 ```
 
