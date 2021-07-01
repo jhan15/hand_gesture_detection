@@ -13,16 +13,16 @@ import numpy as np
 from utils.utils import check_hand_direction, find_boundary_lm
 
 
-CAM_W = 1280
-CAM_H = 800
+CAM_W = 640
+CAM_H = 480
 TEXT_COLOR = (102, 51, 0)
 
 
 # A hand detector based on mediapipe, it can detect hands and return several features of hands:
 #   'index'     - the index number of hands, -1 is the firstly detected one
-#   'label'     - handedness of hands
+#   'label'     - handedness of hands, 'Left', 'Right'
 #   'landmarks' - the coordinates of 21 hand joints
-#   'direction' - the direction that hands pointing, 'up', 'down', 'left', 'right'
+#   'direction' - the direction that a hand is pointing, 'up', 'down', 'left', 'right'
 #   'facing'    - the facing of hands, 'front', 'back', 'front' means the palm is facing the camera
 #   'boundary'  - the boundary joints from 'up', 'down', 'left', 'right'
 class HandDetector:
@@ -102,7 +102,7 @@ def main():
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        detector.detect_hands(img)
+        decoded_hands = detector.detect_hands(img)
         detector.draw_landmarks(img)
         
         ctime = time.time()
@@ -110,6 +110,9 @@ def main():
         ptime = ctime
 
         cv2.putText(img, f'FPS: {int(fps)}', (30,40), 0, 0.8, TEXT_COLOR , 2)
+        if decoded_hands:
+            cv2.putText(img, f'Number of hands detected: {len(decoded_hands)}',
+                        (30,70), 0, 0.8, TEXT_COLOR , 2)
 
         cv2.imshow('Hand detection', img)
         key = cv2.waitKey(1)
