@@ -3,7 +3,7 @@ import numpy as np
 
 
 TEXT_COLOR = (102,51,0)
-BAR_COLOR = (76,0,153)
+BAR_COLOR = (0,255,0)
 LINE_COLOR = (255,255,255)
 LM_COLOR = (255,51,255)
 BOX_COLOR = (153,0,153)

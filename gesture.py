@@ -68,17 +68,20 @@ class GestureDetector:
         
         return finger_states
     
-    def detect_gesture(self, img, mode, target_gesture=''):
+    def detect_gesture(self, img, mode, target_gesture='', draw=True):
         hands = self.hand_detector.detect_hands(img)
-        self.hand_detector.draw_landmarks(img)
+        if draw:
+            self.hand_detector.draw_landmarks(img)
         detected_gesture = None
+        target_detected = False
 
         if hands:
             if mode == 'single':
                 hand = hands[-1]
                 ges = Gesture(hand['label'])
                 finger_states = self.check_finger_states(hand)
-                draw_fingertips(hand['landmarks'], finger_states, img)
+                if draw:
+                    draw_fingertips(hand['landmarks'], finger_states, img)
                 
                 detected_gesture = map_gesture(hand['landmarks'],
                                                finger_states,
@@ -87,13 +90,17 @@ class GestureDetector:
                                                ges.gestures)
                 
                 if detected_gesture:
-                    if target_gesture == '' or detected_gesture == target_gesture:
+                    if target_gesture == '':
                         draw_bounding_box(hand['landmarks'], detected_gesture, img)
+                    else:
+                        if detected_gesture == target_gesture:
+                            target_detected = True
+                            draw_bounding_box(hand['landmarks'], detected_gesture, img)
                 
             if mode == 'double' and len(hands) == 2:
                 pass
 
-        return detected_gesture
+        return target_detected
 
 
 def main(mode='single', target_gesture=''):
