@@ -29,6 +29,7 @@ $ python3 hand.py --max_hands 2
 $ python3 gesture.py --mode single
 ```
 
+## Application
 ### Volume controller
 
 ```bash
