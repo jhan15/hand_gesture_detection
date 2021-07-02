@@ -11,7 +11,6 @@ import numpy as np
 import time
 from osascript import osascript
 
-from hand import HandDetector
 from gesture import GestureDetector
 from utils.utils import two_landmark_distance, draw_vol_bar, draw_landmarks
 from utils.utils import update_trajectory, check_trajectory
@@ -32,8 +31,7 @@ def vol_control(control='continuous', step=10, traj_size=10):
     cap = cv2.VideoCapture(0)
     cap.set(3, CAM_W)
     cap.set(4, CAM_H)
-    hand_detector = HandDetector(max_num_hands=1)
-    ges_detector = GestureDetector()
+    ges_detector = GestureDetector(max_num_hands=1)
 
     vol = (VOL_RANGE[0] + VOL_RANGE[1]) // 2
     vol_bar = (BAR_X_RANGE[0] + BAR_X_RANGE[1]) // 2
@@ -44,23 +42,27 @@ def vol_control(control='continuous', step=10, traj_size=10):
     window_name = 'Volume controller'
     trajectory = list()
     joint1, joint2 = 4, 8
+    thumbs_up = False
     activated = False
 
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        thumbs_up = ges_detector.detect_gesture(img, 'single', 'Thumbs-up', draw=False)
-        ok = ges_detector.detect_gesture(img, 'single', 'OK', draw=False)
-        if thumbs_up:
+        detected_gesture = ges_detector.detect_gesture(img, 'single', draw=False)
+
+        if detected_gesture == 'Thumbs-up':
+            thumbs_up = True
+        if thumbs_up and detected_gesture != 'Thumbs-up':
             activated = True
-        if ok:
+        if detected_gesture == 'OK':
             activated = False
         
-        if activated and not thumbs_up:
-            hands = hand_detector.detect_hands(img)
-            # control
+        if activated:
+            hands = ges_detector.hand_detector.decoded_hands
             if hands:
-                landmarks = hands[-1]['landmarks']
+                # control
+                hand = hands[-1]
+                landmarks = hand['landmarks']
                 pt1 = landmarks[joint1][:2]
                 pt2 = landmarks[joint2][:2]
                 length = two_landmark_distance(pt1, pt2)
@@ -68,7 +70,7 @@ def vol_control(control='continuous', step=10, traj_size=10):
                 # continuous control mode
                 if control == 'continuous':
                     draw_landmarks(img, pt1, pt2)
-                    finger_states = ges_detector.check_finger_states(hands[-1])
+                    finger_states = ges_detector.check_finger_states(hand)
                     if finger_states[4] > 2:
                         vol = np.interp(length, LEN_RANGE, VOL_RANGE)
                         vol_bar = np.interp(length, LEN_RANGE, BAR_X_RANGE)

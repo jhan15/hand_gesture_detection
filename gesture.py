@@ -42,7 +42,7 @@ class GestureDetector:
         label = hand['label']
         facing = hand['facing']
 
-        finger_states = [None] * 5
+        self.finger_states = [None] * 5
         joint_angles = np.zeros((5,3)) # 5 fingers and 3 angles each
 
         # wrist to index finger mcp
@@ -55,74 +55,89 @@ class GestureDetector:
                 joint_angles[i] = np.array(
                     [calculate_thumb_angle(landmarks[joints[j:j+3]], label, facing) for j in range(3)]
                 )
-                finger_states[i] = get_finger_state(joint_angles[i], THUMB_THRESH)
+                self.finger_states[i] = get_finger_state(joint_angles[i], THUMB_THRESH)
             else:
                 joint_angles[i] = np.array(
                     [calculate_angle(landmarks[joints[j:j+3]]) for j in range(3)]
                 )
                 d2 = two_landmark_distance(landmarks[joints[1]], landmarks[joints[4]])
-                finger_states[i] = get_finger_state(joint_angles[i], NON_THUMB_THRESH)
+                self.finger_states[i] = get_finger_state(joint_angles[i], NON_THUMB_THRESH)
                 
-                if finger_states[i] == 0 and d2/d1 < BENT_RATIO_THRESH[i-1]:
-                    finger_states[i] = 1
+                if self.finger_states[i] == 0 and d2/d1 < BENT_RATIO_THRESH[i-1]:
+                    self.finger_states[i] = 1
         
-        return finger_states
+        return self.finger_states
     
-    def detect_gesture(self, img, mode, target_gesture='', draw=True):
+    def detect_gesture(self, img, mode, draw=True):
         hands = self.hand_detector.detect_hands(img)
-        if draw:
-            self.hand_detector.draw_landmarks(img)
-        detected_gesture = None
-        target_detected = False
+        self.detected_gesture = None
 
         if hands:
             if mode == 'single':
                 hand = hands[-1]
-                ges = Gesture(hand['label'])
-                finger_states = self.check_finger_states(hand)
+                self.check_finger_states(hand)
+
+                wrist_angle = hand['wrist_angle']
+                pt = hand['landmarks'][0]
+                cv2.putText(img, f'{round(wrist_angle,2)}', (pt[0]+20,pt[1]+5), 0, 0.8, (0,255,0), 2)
+
+                for i in range(5):
+                    pt = hand['landmarks'][4*i+4]
+                    cv2.putText(img, f'{self.finger_states[i]}', (pt[0]-40,pt[1]+5), 0, 0.8, (0,255,0), 2)
+
                 if draw:
-                    draw_fingertips(hand['landmarks'], finger_states, img)
+                    self.draw_gesture_landmarks(img)
                 
-                detected_gesture = map_gesture(hand['landmarks'],
-                                               finger_states,
-                                               hand['direction'],
-                                               hand['boundary'],
-                                               ges.gestures)
-                
-                if detected_gesture:
-                    if target_gesture == '':
-                        draw_bounding_box(hand['landmarks'], detected_gesture, img)
-                    else:
-                        if detected_gesture == target_gesture:
-                            target_detected = True
-                            draw_bounding_box(hand['landmarks'], detected_gesture, img)
+                ges = Gesture(hand['label'])
+                self.detected_gesture = map_gesture(ges.gestures,
+                                                    self.finger_states,
+                                                    hand['landmarks'],
+                                                    hand['wrist_angle'],
+                                                    hand['direction'],
+                                                    hand['boundary'])
                 
             if mode == 'double' and len(hands) == 2:
                 pass
 
-        return target_detected
+        return self.detected_gesture
+    
+    def draw_gesture_landmarks(self, img):
+        hand = self.hand_detector.decoded_hands[-1]
+        self.hand_detector.draw_landmarks(img)
+        draw_fingertips(hand['landmarks'], self.finger_states, img)
+    
+    def draw_gesture_box(self, img):
+        hand = self.hand_detector.decoded_hands[-1]
+        draw_bounding_box(hand['landmarks'], self.detected_gesture, img)
 
 
-def main(mode='single', target_gesture=''):
+def main(mode='single', target_gesture='all'):
     cap = cv2.VideoCapture(0)
     cap.set(3, CAM_W)
     cap.set(4, CAM_H)
-    ges_detector = GestureDetector()
+    window_name = 'Gesture detection'
+
+    max_hands = 1 if mode == 'single' else 2
+    ges_detector = GestureDetector(max_num_hands=max_hands)
     ptime = 0
     ctime = 0
 
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        ges_detector.detect_gesture(img, mode, target_gesture)
+        ges_detector.detect_gesture(img, mode)
+        if ges_detector.detected_gesture:
+            if target_gesture == 'all' or target_gesture == ges_detector.detected_gesture:
+                ges_detector.draw_gesture_box(img)
         
         ctime = time.time()
         fps = 1 / (ctime - ptime)
         ptime = ctime
 
-        cv2.putText(img, f'FPS: {int(fps)}', (50,38), 0, 0.8, TEXT_COLOR, 2, lineType=cv2.LINE_AA)
-
-        cv2.imshow('Gesture detection', img)
+        cv2.putText(img, f'FPS: {int(fps)}', (50,38), 0, 0.8,
+                    TEXT_COLOR, 2, lineType=cv2.LINE_AA)
+        
+        cv2.imshow(window_name, img)
         key = cv2.waitKey(1)
         if key == ord('q'):
             cv2.destroyAllWindows()
@@ -133,8 +148,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', type=str, default='single',
                         help='single/double-hand gestures (default: single)')
-    parser.add_argument('--target_gesture', type=str, default='',
-                        help='detect a specific gesture (default: empty)')
+    parser.add_argument('--target_gesture', type=str, default='all',
+                        help='detect a specific gesture (default: all)')
     opt = parser.parse_args()
 
     main(**vars(opt))

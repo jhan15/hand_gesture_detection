@@ -131,7 +131,7 @@ def get_finger_state(joint_angles, threshold):
     return finger_state
 
 
-def map_gesture(landmarks, finger_states, direction, boundary, gestures):
+def map_gesture(gestures, finger_states, landmarks, wrist_angle, direction, boundary):
     """ Map detected gesture fetures to a pre-defined gesture template. """
     detected_gesture = None
     d = two_landmark_distance(landmarks[0], landmarks[5])
@@ -146,6 +146,9 @@ def map_gesture(landmarks, finger_states, direction, boundary, gestures):
                 flag = 1
                 break
         if flag == 0:
+            count += 1
+        # check wrist angle
+        if temp['wrist angle'][0] < wrist_angle < temp['wrist angle'][1]:
             count += 1
         # check direction
         if temp['direction'] == direction:
@@ -173,7 +176,7 @@ def map_gesture(landmarks, finger_states, direction, boundary, gestures):
             if flag == 0:
                 count += 1
         
-        if count == 4:
+        if count == 5:
             detected_gesture = ges
             break
     

@@ -12,6 +12,7 @@ import time
 import numpy as np
 
 from utils.utils import check_hand_direction, find_boundary_lm
+from utils.utils import calculate_angle
 
 
 CAM_W = 640
@@ -20,12 +21,13 @@ TEXT_COLOR = (102, 51, 0)
 
 
 # A hand detector based on mediapipe, it can detect hands and return several features of hands:
-#   'index'     - the index number of hands, -1 is the firstly detected one
-#   'label'     - handedness of hands, 'left', 'right'
-#   'landmarks' - the coordinates of 21 hand joints
-#   'direction' - the direction that a hand is pointing, 'up', 'down', 'left', 'right'
-#   'facing'    - the facing of hands, 'front', 'back' ('front' means the palm is facing the camera)
-#   'boundary'  - the boundary joints from 'up', 'down', 'left', 'right'
+#   'index'         - the index number of hands, -1 is the firstly detected one
+#   'label'         - handedness of hands, 'left', 'right'
+#   'landmarks'     - the coordinates of 21 hand joints
+#   'wrist_angle'   - angle of <index finger mcp, wrist, pinky mcp>
+#   'direction'     - the direction that a hand is pointing, 'up', 'down', 'left', 'right'
+#   'facing'        - the facing of hands, 'front', 'back' ('front' means the palm is facing the camera)
+#   'boundary'      - the boundary joints from 'up', 'down', 'left', 'right'
 class HandDetector:
     def __init__(self, static_image_mode=False, max_num_hands=2,
                 min_detection_confidence=0.8, min_tracking_confidence=0.5):
@@ -44,22 +46,22 @@ class HandDetector:
                                          self.min_tracking_confidence)
     
     def detect_hands(self, img):
-        decoded_hands = None
+        self.decoded_hands = None
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(img_rgb)
         
         if self.results.multi_hand_landmarks:
             h, w, _ = img.shape
             num_hands = len(self.results.multi_hand_landmarks)
-            decoded_hands = [None] * num_hands
+            self.decoded_hands = [None] * num_hands
 
             for i in range(num_hands):
-                decoded_hands[i] = dict()
+                self.decoded_hands[i] = dict()
                 handedness = self.results.multi_handedness[i]
                 hand_landmarks = self.results.multi_hand_landmarks[i]
 
-                decoded_hands[i]['index'] = handedness.classification[0].index
-                decoded_hands[i]['label'] = handedness.classification[0].label.lower()
+                self.decoded_hands[i]['index'] = handedness.classification[0].index
+                self.decoded_hands[i]['label'] = handedness.classification[0].label.lower()
 
                 lm_list = list()
                 wrist_z = hand_landmarks.landmark[0].z
@@ -71,15 +73,19 @@ class HandDetector:
                     lm_list.append([cx, cy, cz])
                 
                 lm_array = np.array(lm_list)
-                direction, facing = check_hand_direction(lm_array, decoded_hands[i]['label'])
+                direction, facing = check_hand_direction(lm_array, self.decoded_hands[i]['label'])
                 boundary = find_boundary_lm(lm_array)
 
-                decoded_hands[i]['landmarks'] = lm_array
-                decoded_hands[i]['direction'] = direction
-                decoded_hands[i]['facing'] = facing
-                decoded_hands[i]['boundary'] = boundary
+                wrist_angle_joints = lm_array[[5, 0, 17]]
+                wrist_angle = calculate_angle(wrist_angle_joints)
+
+                self.decoded_hands[i]['landmarks'] = lm_array
+                self.decoded_hands[i]['wrist_angle'] = wrist_angle
+                self.decoded_hands[i]['direction'] = direction
+                self.decoded_hands[i]['facing'] = facing
+                self.decoded_hands[i]['boundary'] = boundary
         
-        return decoded_hands
+        return self.decoded_hands
     
     def draw_landmarks(self, img):
         w = img.shape[1]
@@ -102,16 +108,17 @@ def main(max_hands=2):
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        decoded_hands = detector.detect_hands(img)
+        detector.detect_hands(img)
         detector.draw_landmarks(img)
         
         ctime = time.time()
         fps = 1 / (ctime - ptime)
         ptime = ctime
 
-        cv2.putText(img, f'FPS: {int(fps)}', (30,40), 0, 0.8, TEXT_COLOR , 2)
-        if decoded_hands:
-            cv2.putText(img, f'Number of hands detected: {len(decoded_hands)}',
+        cv2.putText(img, f'FPS: {int(fps)}', (30,40), 0, 0.8,
+                    TEXT_COLOR , 2, lineType=cv2.LINE_AA)
+        if detector.decoded_hands:
+            cv2.putText(img, f'Number of hands detected: {len(detector.decoded_hands)}',
                         (30,70), 0, 0.8, TEXT_COLOR , 2)
 
         cv2.imshow('Hand detection', img)
