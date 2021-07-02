@@ -33,26 +33,24 @@ Detect hand gestures on streams, it can detect a series of pre-defined hand gest
 $ python3 gesture.py --mode single
 ```
 
-## Application
+(Currenly only single-hand gestures are supported, double-hand gestures TBD)
+
 ### Volume controller
+It's a possible application of hand gesture in areas like smart home, to control volume of smart devices. Hand gestures can be used for activation, deactivation, and control.
 
 ```bash
 $ python3 vol_controller.py --control continuous # continuous control
                                       step # step control
 ```
 
-## Demo
-
-#### Continuous control by length
+#### Continuous control
 
 ![vol1](https://user-images.githubusercontent.com/62132206/121547644-9a2d2400-ca0c-11eb-9141-a280243f71b0.gif)
 
-#### Step control by open/close
+#### Step control
 
 ![vol3](https://user-images.githubusercontent.com/62132206/121547653-9c8f7e00-ca0c-11eb-9319-e75a4e96cf6f.gif)
 
-You can watch the [video with audio](https://www.youtube.com/watch?v=l3ukvTslEB0).
-
-### Issue
+#### Issue
 
 The package I used to control Macbook's volume is [osascript](https://github.com/andrewp-as-is/osascript.py), it will reduce the FPS from ~30 to ~5.
