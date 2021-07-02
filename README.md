@@ -2,18 +2,11 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/jhan15/hand_gesture_detection?color=ff69b4)
 
 # hand_gesture_detection
-It's a project of exploring hand gesture detection and possible applications. It's based on Google's [mediapipe](https://github.com/google/mediapipe) API's hand module for hand detection, which provides coordinates of 21 hand landmarks.
+It's a project of exploring hand gesture detection and possible applications. It's based on Google's [mediapipe](https://github.com/google/mediapipe) API's hand module, which provides coordinates of 21 hand landmarks.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/62132206/124274282-5af07f80-db41-11eb-9ac8-bf14d9680d68.png?raw=true" width="600">
 </p>
-
-### Gestures
-
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/62132206/124275863-6349ba00-db43-11eb-84bb-bf7400b38173.png?raw=true" width="600">
-</p>
-
 
 ## Requirements
 Python 3.8 or later with dependencies listed in [requirements.txt](https://github.com/jhan15/gesture_detection/blob/master/requirements.txt). To install run:
@@ -27,12 +20,14 @@ $ pip install -r requirements.txt
 ## Usage
 
 ### Hand detector
+Detect hands on streams, it draws the landmarks on detected hands and returns hand information such as handedness, landmark coordinates, direction, facing, boundary etc.
 
 ```bash
 $ python3 hand.py --max_hands 2
 ```
 
 ### Gesture detector
+Detect hand gestures on streams, it can detect a series of pre-defined hand gestures, such as Chinese number 1 - 10, 'OK', 'Thumbs-up', 'Thumbs-down', 'Rock', 'Claw' etc.
 
 ```bash
 $ python3 gesture.py --mode single
@@ -46,7 +41,7 @@ $ python3 vol_controller.py --control continuous # continuous control
                                       step # step control
 ```
 
-### Demo
+## Demo
 
 #### Continuous control by length
 
