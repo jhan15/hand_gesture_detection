@@ -11,7 +11,7 @@ It's a project of exploring hand gesture detection and possible applications. It
 ### Gestures
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/62132206/124275662-241b6900-db43-11eb-938d-64fefd3cb9cd.png?raw=true" width="600">
+  <img src="https://user-images.githubusercontent.com/62132206/124275863-6349ba00-db43-11eb-84bb-bf7400b38173.png?raw=true" width="600">
 </p>
 
 
