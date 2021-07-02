@@ -8,6 +8,13 @@ It's a project of exploring hand gesture detection and possible applications. It
   <img src="https://user-images.githubusercontent.com/62132206/124274282-5af07f80-db41-11eb-9ac8-bf14d9680d68.png?raw=true" width="600">
 </p>
 
+### Gestures
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/62132206/124275662-241b6900-db43-11eb-938d-64fefd3cb9cd.png?raw=true" width="600">
+</p>
+
+
 ## Requirements
 Python 3.8 or later with dependencies listed in [requirements.txt](https://github.com/jhan15/gesture_detection/blob/master/requirements.txt). To install run:
 
@@ -19,7 +26,7 @@ $ pip install -r requirements.txt
 
 ## Usage
 
-#### Hand detector
+### Hand detector
 
 ```bash
 $ python3 hand.py --max_hands 2
