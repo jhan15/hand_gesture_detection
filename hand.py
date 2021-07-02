@@ -2,7 +2,7 @@
 Detect hands on streams.
 
 Usage:
-    $ python3 hand.py --max_num_hands 2
+    $ python3 hand.py --max_hands 2
 """
 
 import argparse
@@ -91,11 +91,11 @@ class HandDetector:
                     self.mp_drawing.DrawingSpec(color=(255,255,255), thickness=t, circle_radius=t))
 
 
-def main(max_num_hands=2):
+def main(max_hands=2):
     cap = cv2.VideoCapture(0)
     cap.set(3, CAM_W)
     cap.set(4, CAM_H)
-    detector = HandDetector(max_num_hands=max_num_hands)
+    detector = HandDetector(max_num_hands=max_hands)
     ptime = 0
     ctime = 0
 
@@ -123,7 +123,7 @@ def main(max_num_hands=2):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--max_num_hands', type=int, default=2,
+    parser.add_argument('--max_hands', type=int, default=2,
                         help='max number of hands (default: 2)')
     opt = parser.parse_args()
 

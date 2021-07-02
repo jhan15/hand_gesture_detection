@@ -20,7 +20,7 @@ $ pip install -r requirements.txt
 ### Hand detector
 
 ```bash
-$ python3 hand.py --max_num_hands 2
+$ python3 hand.py --max_hands 2
 ```
 
 ### Gesture detector
