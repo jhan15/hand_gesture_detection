@@ -4,7 +4,9 @@
 # hand_gesture_detection
 It's a project of exploring hand gesture detection and possible applications. I used Google's [mediapipe](https://github.com/google/mediapipe) API's hand module for hand detection.
 
-<img src="https://user-images.githubusercontent.com/62132206/124274282-5af07f80-db41-11eb-9ac8-bf14d9680d68.png?raw=true" width="800">
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/62132206/124274282-5af07f80-db41-11eb-9ac8-bf14d9680d68.png?raw=true" width="600">
+</p>
 
 
 ## Requirements
