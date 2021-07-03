@@ -18,7 +18,7 @@ from utils.utils import map_gesture, draw_bounding_box, draw_fingertips
 
 
 THUMB_THRESH = [9, 8]
-NON_THUMB_THRESH = [8.6, 7.8, 6.6, 6.1]
+NON_THUMB_THRESH = [8.6, 7.6, 6.6, 6.1]
 
 BENT_RATIO_THRESH = [0.76, 0.88, 0.85, 0.65]
 
@@ -77,13 +77,13 @@ class GestureDetector:
                 hand = hands[-1]
                 self.check_finger_states(hand)
 
-                wrist_angle = hand['wrist_angle']
-                pt = hand['landmarks'][0]
-                cv2.putText(img, f'{round(wrist_angle,2)}', (pt[0]+20,pt[1]+5), 0, 0.8, (0,255,0), 2)
+                # wrist_angle = hand['wrist_angle']
+                # pt = hand['landmarks'][0]
+                # cv2.putText(img, f'{round(wrist_angle,2)}', (pt[0]+20,pt[1]+5), 0, 0.8, (0,255,0), 2)
 
-                for i in range(5):
-                    pt = hand['landmarks'][4*i+4]
-                    cv2.putText(img, f'{self.finger_states[i]}', (pt[0]-40,pt[1]+5), 0, 0.8, (0,255,0), 2)
+                # for i in range(5):
+                #     pt = hand['landmarks'][4*i+4]
+                #     cv2.putText(img, f'{self.finger_states[i]}', (pt[0]-40,pt[1]+5), 0, 0.8, (0,255,0), 2)
 
                 if draw:
                     self.draw_gesture_landmarks(img)

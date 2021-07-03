@@ -135,7 +135,7 @@ def map_gesture(gestures, finger_states, landmarks, wrist_angle, direction, boun
     """ Map detected gesture fetures to a pre-defined gesture template. """
     detected_gesture = None
     d = two_landmark_distance(landmarks[0], landmarks[5])
-    thresh = d / 4.5
+    thresh = d / 4
     for ges, temp in gestures.items():
         count = 0
         
