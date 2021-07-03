@@ -42,19 +42,19 @@ def vol_control(control='continuous', step=10, traj_size=10):
     window_name = 'Volume controller'
     trajectory = list()
     joint1, joint2 = 4, 8
-    thumbs_up = False
     activated = False
 
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        detected_gesture = ges_detector.detect_gesture(img, 'single', draw=False)
+        detected_gesture = ges_detector.detect_gesture(img, 'single')
 
-        if detected_gesture == 'Thumbs-up':
-            thumbs_up = True
-        if thumbs_up and detected_gesture != 'Thumbs-up':
+        if detected_gesture == 'C shape' or detected_gesture == 'Pinch':
+            ges_detector.draw_gesture_box(img)
+
+        if detected_gesture == 'Pinch':
             activated = True
-        if detected_gesture == 'OK':
+        if activated and detected_gesture == 'C shape':
             activated = False
         
         if activated:
@@ -66,7 +66,7 @@ def vol_control(control='continuous', step=10, traj_size=10):
                 pt1 = landmarks[joint1][:2]
                 pt2 = landmarks[joint2][:2]
                 length = two_landmark_distance(pt1, pt2)
-
+                
                 # continuous control mode
                 if control == 'continuous':
                     draw_landmarks(img, pt1, pt2)
@@ -86,7 +86,6 @@ def vol_control(control='continuous', step=10, traj_size=10):
                         draw_landmarks(img, pt1, pt2)
 
                     trajectory = update_trajectory(length, trajectory, traj_size)
-                    
                     up = False
                     down = False
 
@@ -95,13 +94,11 @@ def vol_control(control='continuous', step=10, traj_size=10):
                         if up:
                             vol = min(vol + step, VOL_RANGE[1])
                             osascript("set volume output volume {}".format(vol))
-                    
                     if len(trajectory) == traj_size and length < STEP_THRESHOLD[0]:
                         down = check_trajectory(trajectory, direction=-1)
                         if down:
                             vol = max(vol - step, VOL_RANGE[0])
                             osascript("set volume output volume {}".format(vol))
-                    
                     if up or down:
                         vol_bar = np.interp(vol, VOL_RANGE, BAR_X_RANGE)
                         trajectory = []           
