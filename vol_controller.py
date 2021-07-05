@@ -19,12 +19,8 @@ from utils.utils import update_trajectory, check_trajectory
 CAM_W = 640                                 # camera width
 CAM_H = 480                                 # camera height
 TEXT_COLOR = (102,51,0)                     # text color
-LINE_COLOR_HIGH = (0,0,255)                 # landmark color high
-LINE_COLOR_LOW = (0,255,0)                  # landmark color low
 VOL_RANGE = [0, 100]                        # system volume range
 BAR_X_RANGE = [350, 550]                    # bar x position range
-LEN_RANGE = [20, 150]                       # range of thumb and index fingertips
-STEP_THRESHOLD = [30, 130]                  # threshold of step control
 
 
 def vol_control(control='continuous', step=10, traj_size=10):
@@ -40,31 +36,41 @@ def vol_control(control='continuous', step=10, traj_size=10):
     ptime = 0
     ctime = 0
     window_name = 'Volume controller'
+
     trajectory = list()
-    joint1, joint2 = 4, 8
+    target_gestures = ['Pinch', 'C shape']
+    wrist = 0
+    thumb_tip, index_tip = 4, 8
     activated = False
+    len_range = None
 
     while True:
         _, img = cap.read()
         img = cv2.flip(img, 1)
-        detected_gesture = ges_detector.detect_gesture(img, 'single')
+        gesture = ges_detector.detect_gesture(img, 'single')
+        hands = ges_detector.hand_detector.decoded_hands
 
-        if detected_gesture == 'C shape' or detected_gesture == 'Pinch':
-            ges_detector.draw_gesture_box(img)
-
-        if detected_gesture == 'Pinch':
-            activated = True
-        if activated and detected_gesture == 'C shape':
-            activated = False
+        if gesture:
+            hand = hands[-1]
+            landmarks = hand['landmarks']
+            if gesture in target_gestures:
+                ges_detector.draw_gesture_box(img)
+            if gesture == target_gestures[0]:
+                if not activated:
+                    base_len = two_landmark_distance(landmarks[wrist],
+                                                     landmarks[thumb_tip])
+                    len_range = [0.1*base_len, 0.6*base_len]
+                    step_threshold = [0.2*base_len, 0.9*base_len]
+                activated = True
+            if activated and gesture == target_gestures[1]:
+                activated = False
         
         if activated:
-            hands = ges_detector.hand_detector.decoded_hands
             if hands:
-                # control
                 hand = hands[-1]
                 landmarks = hand['landmarks']
-                pt1 = landmarks[joint1][:2]
-                pt2 = landmarks[joint2][:2]
+                pt1 = landmarks[thumb_tip][:2]
+                pt2 = landmarks[index_tip][:2]
                 length = two_landmark_distance(pt1, pt2)
                 
                 # continuous control mode
@@ -72,29 +78,22 @@ def vol_control(control='continuous', step=10, traj_size=10):
                     draw_landmarks(img, pt1, pt2)
                     finger_states = ges_detector.check_finger_states(hand)
                     if finger_states[4] > 2:
-                        vol = np.interp(length, LEN_RANGE, VOL_RANGE)
-                        vol_bar = np.interp(length, LEN_RANGE, BAR_X_RANGE)
+                        vol = np.interp(length, len_range, VOL_RANGE)
+                        vol_bar = np.interp(length, len_range, BAR_X_RANGE)
                         osascript("set volume output volume {}".format(vol))
 
                 # step control mode
                 if control == 'step':
-                    if length > STEP_THRESHOLD[1]:
-                        draw_landmarks(img, pt1, pt2, LINE_COLOR_HIGH)
-                    elif length < STEP_THRESHOLD[0]:
-                        draw_landmarks(img, pt1, pt2, LINE_COLOR_LOW)
-                    else:
-                        draw_landmarks(img, pt1, pt2)
-
+                    draw_landmarks(img, pt1, pt2)
                     trajectory = update_trajectory(length, trajectory, traj_size)
                     up = False
                     down = False
-
-                    if len(trajectory) == traj_size and length > STEP_THRESHOLD[1]:
+                    if len(trajectory) == traj_size and length > step_threshold[1]:
                         up = check_trajectory(trajectory, direction=1)
                         if up:
                             vol = min(vol + step, VOL_RANGE[1])
                             osascript("set volume output volume {}".format(vol))
-                    if len(trajectory) == traj_size and length < STEP_THRESHOLD[0]:
+                    if len(trajectory) == traj_size and length < step_threshold[0]:
                         down = check_trajectory(trajectory, direction=-1)
                         if down:
                             vol = max(vol - step, VOL_RANGE[0])

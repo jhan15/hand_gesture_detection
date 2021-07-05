@@ -87,7 +87,7 @@ class Gesture:
                              'wrist angle':     [0, 0.20],
                              'overlap':         [[4, 8], [4, 12]],
                              'boundary':        {0: 0} if label == 'right' else {1: 0}},
-            'Pinch':        {'finger states':   [[0], [1], [4], [4], [4]],
+            'Pinch':        {'finger states':   [[0], [0, 1], [4], [4], [4]],
                              'direction':       'up',
                              'wrist angle':     [0.10, 0.50],
                              'overlap':         None,
