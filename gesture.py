@@ -22,8 +22,8 @@ NON_THUMB_THRESH = [8.6, 7.6, 6.6, 6.1]
 
 BENT_RATIO_THRESH = [0.76, 0.88, 0.85, 0.65]
 
-CAM_W = 640
-CAM_H = 480
+CAM_W = 1280
+CAM_H = 720
 TEXT_COLOR = (102,51,0)
 
 
@@ -134,7 +134,7 @@ def main(mode='single', target_gesture='all'):
         fps = 1 / (ctime - ptime)
         ptime = ctime
 
-        cv2.putText(img, f'FPS: {int(fps)}', (50,38), 0, 0.8,
+        cv2.putText(img, f'FPS: {int(fps)}', (50,50), 0, 0.8,
                     TEXT_COLOR, 2, lineType=cv2.LINE_AA)
         
         cv2.imshow(window_name, img)

@@ -12,12 +12,14 @@ import time
 import numpy as np
 
 from utils.utils import check_hand_direction, find_boundary_lm
-from utils.utils import calculate_angle
+from utils.utils import calculate_angle, display_hand_info
 
 
-CAM_W = 640
-CAM_H = 480
+CAM_W = 1280
+CAM_H = 720
 TEXT_COLOR = (102, 51, 0)
+LM_COLOR = (102,255,255)
+LINE_COLOR = (51,51,51)
 
 
 # A hand detector based on mediapipe, it can detect hands and return several features of hands:
@@ -89,12 +91,12 @@ class HandDetector:
     
     def draw_landmarks(self, img):
         w = img.shape[1]
-        t = int(w / 300)
+        t = int(w / 500)
         if self.results.multi_hand_landmarks:
             for landmarks in self.results.multi_hand_landmarks:
                 self.mp_drawing.draw_landmarks(img, landmarks, self.mp_hands.HAND_CONNECTIONS,
-                    self.mp_drawing.DrawingSpec(color=(51,255,51), thickness=3*t, circle_radius=t),
-                    self.mp_drawing.DrawingSpec(color=(255,255,255), thickness=t, circle_radius=t))
+                    self.mp_drawing.DrawingSpec(color=LM_COLOR, thickness=3*t, circle_radius=t),
+                    self.mp_drawing.DrawingSpec(color=LINE_COLOR, thickness=t, circle_radius=t))
 
 
 def main(max_hands=2):
@@ -110,16 +112,16 @@ def main(max_hands=2):
         img = cv2.flip(img, 1)
         detector.detect_hands(img)
         detector.draw_landmarks(img)
+        if detector.decoded_hands:
+            for hand in detector.decoded_hands:
+                display_hand_info(img, hand)
         
         ctime = time.time()
         fps = 1 / (ctime - ptime)
         ptime = ctime
 
-        cv2.putText(img, f'FPS: {int(fps)}', (30,40), 0, 0.8,
+        cv2.putText(img, f'FPS: {int(fps)}', (50,50), 0, 0.8,
                     TEXT_COLOR , 2, lineType=cv2.LINE_AA)
-        if detector.decoded_hands:
-            cv2.putText(img, f'Number of hands detected: {len(detector.decoded_hands)}',
-                        (30,70), 0, 0.8, TEXT_COLOR , 2)
 
         cv2.imshow('Hand detection', img)
         key = cv2.waitKey(1)

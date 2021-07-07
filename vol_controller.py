@@ -16,11 +16,12 @@ from utils.utils import two_landmark_distance, draw_vol_bar, draw_landmarks
 from utils.utils import update_trajectory, check_trajectory
 
 
-CAM_W = 640                                 # camera width
-CAM_H = 480                                 # camera height
-TEXT_COLOR = (102,51,0)                     # text color
-VOL_RANGE = [0, 100]                        # system volume range
-BAR_X_RANGE = [350, 550]                    # bar x position range
+CAM_W = 1280
+CAM_H = 720
+TEXT_COLOR = (102,51,0)
+ACTI_COLOR = (0,255,0)
+VOL_RANGE = [0, 100]
+BAR_X_RANGE = [50, CAM_W//5]
 
 
 def vol_control(control='continuous', step=10, traj_size=10):
@@ -106,15 +107,10 @@ def vol_control(control='continuous', step=10, traj_size=10):
         fps = 1 / (ctime - ptime)
         ptime = ctime
         
-        draw_vol_bar(img, vol_bar, vol, BAR_X_RANGE)
-        cv2.putText(img, f'FPS: {int(fps)}', (30,40), 0, 0.8,
-                    TEXT_COLOR, 2, lineType=cv2.LINE_AA)
-        if activated:
-            cv2.putText(img, f'Volume controller activated!', (100,80), 0, 0.8,
-                        (0,255,0), 2, lineType=cv2.LINE_AA)
-        else:
-            cv2.putText(img, f'Volume controller de-activated!', (100,80), 0, 0.8,
-                        (0,0,255), 2, lineType=cv2.LINE_AA)
+        pt1 = (30,20)
+        pt2 = (BAR_X_RANGE[1]+100,150)
+        draw_vol_bar(img, pt1, pt2, vol_bar, vol, fps, BAR_X_RANGE, activated)
+
         cv2.imshow(window_name, img)
         key = cv2.waitKey(1)
         if key == ord('q'):

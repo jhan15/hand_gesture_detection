@@ -3,7 +3,7 @@ import numpy as np
 
 
 TEXT_COLOR = (102,51,0)
-BAR_COLOR = (0,255,0)
+BAR_COLOR = (51,255,51)
 LINE_COLOR = (255,255,255)
 LM_COLOR = (255,51,255)
 BOX_COLOR = (153,0,153)
@@ -23,7 +23,7 @@ NON_THUMB_STATES = {
 
 
 def find_boundary_lm(landmarks):
-    """ Get the landmarks/joints with maximum x, minimum x, maximum y, and minimum y values. """
+    """ Get the landmarks with maximum x, minimum x, maximum y, and minimum y values. """
     xs = landmarks[:,0]
     ys = landmarks[:,1]
     lm_x_max, lm_x_min = np.argmax(xs), np.argmin(xs)
@@ -183,10 +183,17 @@ def map_gesture(gestures, finger_states, landmarks, wrist_angle, direction, boun
     return detected_gesture
 
 
+def draw_transparent_box(img, pt1, pt2, alpha=0.5, beta=0.5):
+    sub_img = img[pt1[1]:pt2[1], pt1[0]:pt2[0]]
+    white_rect = np.ones(sub_img.shape, dtype=np.uint8) * 255
+    res = cv2.addWeighted(sub_img, alpha, white_rect, beta, 1.0)
+    img[pt1[1]:pt2[1], pt1[0]:pt2[0]] = res
+
+
 def draw_fingertips(landmarks, finger_states, img):
     """ Draw fingertips by finger states. """
     w = img.shape[1]
-    r = int(w / 60)
+    r = int(w / 100)
     for i in range(5):
         fingertip = landmarks[4*(i+1)]
         color = THUMB_STATES[finger_states[i]][1] if i == 0 else NON_THUMB_STATES[finger_states[i]][1]
@@ -197,31 +204,72 @@ def draw_fingertips(landmarks, finger_states, img):
 def draw_bounding_box(landmarks, detected_gesture, img):
     """ Draw a bounding box of detected hand with gesture label. """
     w = img.shape[1]
-    tor = int(w / 30)
+    tor = int(w / 40)
 
     xs = landmarks[:,0]
     ys = landmarks[:,1]
     x_max, x_min = np.max(xs), np.min(xs)
     y_max, y_min = np.max(ys), np.min(ys)
+
+    draw_transparent_box(img, (x_min-tor,y_min-tor-40), (x_max+tor,y_min-tor))
+
     cv2.rectangle(img, (x_min-tor,y_min-tor), (x_max+tor,y_max+tor),
-                                BOX_COLOR, 2, lineType=cv2.LINE_AA)
-    cv2.rectangle(img, (x_min-tor,y_min-tor-40), (x_max+tor,y_min-tor),
-                                BOX_COLOR, -1, lineType=cv2.LINE_AA)
+                  LINE_COLOR, 1, lineType=cv2.LINE_AA)
     cv2.putText(img, f'{detected_gesture}', (x_min-tor+5,y_min-tor-10), 0, 1,
-                                LINE_COLOR, 3, lineType=cv2.LINE_AA)
+                TEXT_COLOR, 3, lineType=cv2.LINE_AA)
+
+
+def display_hand_info(img, hand):
+    """ Display hand information. """
+    w = img.shape[1]
+    tor = int(w /40)
+
+    landmarks = hand['landmarks']
+    label = hand['label']
+    wrist_angle = hand['wrist_angle']
+    direction = hand['direction']
+    facing = hand['facing']
+
+    xs = landmarks[:,0]
+    ys = landmarks[:,1]
+    x_max, x_min = np.max(xs), np.min(xs)
+    y_max, y_min = np.max(ys), np.min(ys)
+
+    cv2.rectangle(img, (x_min-tor,y_min-tor), (x_max+tor,y_max+tor),
+                  LINE_COLOR, 1, lineType=cv2.LINE_AA)
+    cv2.putText(img, f'LABEL: {label} hand', (x_min-tor,y_min-4*tor-10), 0, 0.6,
+                LINE_COLOR, 2, lineType=cv2.LINE_AA)
+    cv2.putText(img, f'DIRECTION: {direction}', (x_min-tor,y_min-3*tor-10), 0, 0.6,
+                LINE_COLOR, 2, lineType=cv2.LINE_AA)
+    cv2.putText(img, f'FACING: {facing}', (x_min-tor,y_min-2*tor-10), 0, 0.6,
+                LINE_COLOR, 2, lineType=cv2.LINE_AA)
+    cv2.putText(img, f'WRIST ANGLE: {round(wrist_angle,1)}', (x_min-tor,y_min-tor-10),
+                0, 0.6, LINE_COLOR, 2, lineType=cv2.LINE_AA)
+
 
 
 #########################################################################
 # below functions are specifically for volume control, need check later #
 #########################################################################
 
-def draw_vol_bar(img, vol_bar, vol, bar_x_range):
+def draw_vol_bar(img, pt1, pt2, vol_bar, vol, fps, bar_x_range, activated):
     """ Draw a volume bar. """
-    cv2.rectangle(img, (bar_x_range[0],20), (bar_x_range[1],40),
+    draw_transparent_box(img, pt1, pt2)
+    
+    cv2.putText(img, f'FPS: {int(fps)}', (50,50), 0, 0.8,
+                TEXT_COLOR, 2, lineType=cv2.LINE_AA)
+    if activated:
+        cv2.putText(img, f'Activated!', (50,90), 0, 0.8,
+                    BAR_COLOR, 2, lineType=cv2.LINE_AA)
+    else:
+        cv2.putText(img, f'Deactivated!', (50,90), 0, 0.8,
+                    TEXT_COLOR, 2, lineType=cv2.LINE_AA)
+
+    cv2.rectangle(img, (bar_x_range[0],110), (bar_x_range[1],130),
                                     BAR_COLOR, 1, lineType=cv2.LINE_AA)
-    cv2.rectangle(img, (bar_x_range[0],20), (int(vol_bar),40),
+    cv2.rectangle(img, (bar_x_range[0],110), (int(vol_bar),130),
                                     BAR_COLOR, -1, lineType=cv2.LINE_AA)
-    cv2.putText(img, f'{int(vol)}', (bar_x_range[1]+10,38), 0, 0.8,
+    cv2.putText(img, f'{int(vol)}', (bar_x_range[1]+20,128), 0, 0.8,
                                     TEXT_COLOR, 2, lineType=cv2.LINE_AA)
 
 
