@@ -184,6 +184,7 @@ def map_gesture(gestures, finger_states, landmarks, wrist_angle, direction, boun
 
 
 def draw_transparent_box(img, pt1, pt2, alpha=0.5, beta=0.5):
+    """ Draw a transparent rectangle. """
     sub_img = img[pt1[1]:pt2[1], pt1[0]:pt2[0]]
     white_rect = np.ones(sub_img.shape, dtype=np.uint8) * 255
     res = cv2.addWeighted(sub_img, alpha, white_rect, beta, 1.0)
@@ -246,11 +247,6 @@ def display_hand_info(img, hand):
     cv2.putText(img, f'WRIST ANGLE: {round(wrist_angle,1)}', (x_min-tor,y_min-tor-10),
                 0, 0.6, LINE_COLOR, 2, lineType=cv2.LINE_AA)
 
-
-
-#########################################################################
-# below functions are specifically for volume control, need check later #
-#########################################################################
 
 def draw_vol_bar(img, pt1, pt2, vol_bar, vol, fps, bar_x_range, activated):
     """ Draw a volume bar. """

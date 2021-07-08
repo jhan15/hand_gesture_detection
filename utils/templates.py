@@ -93,4 +93,3 @@ class Gesture:
                              'overlap':         None,
                              'boundary':        {0: 0} if label == 'right' else {1: 0}}
         }
-        
