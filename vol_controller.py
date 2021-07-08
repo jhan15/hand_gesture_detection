@@ -36,12 +36,9 @@ def vol_control(control='continuous', step=10, traj_size=10):
 
     ptime = 0
     ctime = 0
-    window_name = 'Volume controller'
-
     trajectory = list()
     target_gestures = ['Pinch', 'C shape']
-    wrist = 0
-    thumb_tip, index_tip = 4, 8
+    wrist, thumb_tip, index_tip = 0, 4, 8
     activated = False
     len_range = None
 
@@ -58,8 +55,7 @@ def vol_control(control='continuous', step=10, traj_size=10):
                 ges_detector.draw_gesture_box(img)
             if gesture == target_gestures[0]:
                 if not activated:
-                    base_len = two_landmark_distance(landmarks[wrist],
-                                                     landmarks[thumb_tip])
+                    base_len = two_landmark_distance(landmarks[wrist], landmarks[thumb_tip])
                     len_range = [0.1*base_len, 0.6*base_len]
                     step_threshold = [0.2*base_len, 0.9*base_len]
                 activated = True
@@ -108,10 +104,10 @@ def vol_control(control='continuous', step=10, traj_size=10):
         ptime = ctime
         
         pt1 = (30,20)
-        pt2 = (BAR_X_RANGE[1]+100,150)
+        pt2 = (BAR_X_RANGE[1]+80,150)
         draw_vol_bar(img, pt1, pt2, vol_bar, vol, fps, BAR_X_RANGE, activated)
 
-        cv2.imshow(window_name, img)
+        cv2.imshow('Volume controller', img)
         key = cv2.waitKey(1)
         if key == ord('q'):
             cv2.destroyAllWindows()
