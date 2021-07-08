@@ -24,10 +24,12 @@ BENT_RATIO_THRESH = [0.76, 0.88, 0.85, 0.65]
 
 CAM_W = 1280
 CAM_H = 720
-TEXT_COLOR = (102,51,0)
+TEXT_COLOR = (243,236,27)
 
 
-# A hand gesture detector to detect different gestures according to pre-defined gesture templates.
+# A hand gesture detector to detect different gestures
+# according to pre-defined gesture templates.
+
 class GestureDetector:
     def __init__(self, static_image_mode=False, max_num_hands=2,
                  min_detection_confidence=0.8, min_tracking_confidence=0.5):
@@ -48,7 +50,6 @@ class GestureDetector:
         # wrist to index finger mcp
         d1 = two_landmark_distance(landmarks[0], landmarks[5])
         
-        # loop for 5 fingers
         for i in range(5):
             joints = [0, 4*i+1, 4*i+2, 4*i+3, 4*i+4]
             if i == 0:
@@ -76,15 +77,6 @@ class GestureDetector:
             if mode == 'single':
                 hand = hands[-1]
                 self.check_finger_states(hand)
-
-                # wrist_angle = hand['wrist_angle']
-                # pt = hand['landmarks'][0]
-                # cv2.putText(img, f'{round(wrist_angle,2)}', (pt[0]+20,pt[1]+5), 0, 0.8, (0,255,0), 2)
-
-                # for i in range(5):
-                #     pt = hand['landmarks'][4*i+4]
-                #     cv2.putText(img, f'{self.finger_states[i]}', (pt[0]-40,pt[1]+5), 0, 0.8, (0,255,0), 2)
-
                 if draw:
                     self.draw_gesture_landmarks(img)
                 
@@ -115,7 +107,6 @@ def main(mode='single', target_gesture='all'):
     cap = cv2.VideoCapture(0)
     cap.set(3, CAM_W)
     cap.set(4, CAM_H)
-    window_name = 'Gesture detection'
 
     max_hands = 1 if mode == 'single' else 2
     ges_detector = GestureDetector(max_num_hands=max_hands)
@@ -137,7 +128,7 @@ def main(mode='single', target_gesture='all'):
         cv2.putText(img, f'FPS: {int(fps)}', (50,50), 0, 0.8,
                     TEXT_COLOR, 2, lineType=cv2.LINE_AA)
         
-        cv2.imshow(window_name, img)
+        cv2.imshow('Gesture detection', img)
         key = cv2.waitKey(1)
         if key == ord('q'):
             cv2.destroyAllWindows()

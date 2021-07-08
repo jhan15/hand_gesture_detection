@@ -2,11 +2,11 @@ import cv2
 import numpy as np
 
 
-TEXT_COLOR = (102,51,0)
+TEXT_COLOR = (243,236,27)
 BAR_COLOR = (51,255,51)
 LINE_COLOR = (255,255,255)
 LM_COLOR = (255,51,255)
-BOX_COLOR = (153,0,153)
+LABEL_COLOR = (102,51,0)
 
 THUMB_STATES ={
     0: ['straight', (121,49,255)],
@@ -216,7 +216,7 @@ def draw_bounding_box(landmarks, detected_gesture, img):
     cv2.rectangle(img, (x_min-tor,y_min-tor), (x_max+tor,y_max+tor),
                   LINE_COLOR, 1, lineType=cv2.LINE_AA)
     cv2.putText(img, f'{detected_gesture}', (x_min-tor+5,y_min-tor-10), 0, 1,
-                TEXT_COLOR, 3, lineType=cv2.LINE_AA)
+                LABEL_COLOR, 3, lineType=cv2.LINE_AA)
 
 
 def display_hand_info(img, hand):
@@ -257,20 +257,20 @@ def draw_vol_bar(img, pt1, pt2, vol_bar, vol, fps, bar_x_range, activated):
     draw_transparent_box(img, pt1, pt2)
     
     cv2.putText(img, f'FPS: {int(fps)}', (50,50), 0, 0.8,
-                TEXT_COLOR, 2, lineType=cv2.LINE_AA)
+                LABEL_COLOR, 2, lineType=cv2.LINE_AA)
     if activated:
         cv2.putText(img, f'Activated!', (50,90), 0, 0.8,
                     BAR_COLOR, 2, lineType=cv2.LINE_AA)
     else:
         cv2.putText(img, f'Deactivated!', (50,90), 0, 0.8,
-                    TEXT_COLOR, 2, lineType=cv2.LINE_AA)
+                    LABEL_COLOR, 2, lineType=cv2.LINE_AA)
 
     cv2.rectangle(img, (bar_x_range[0],110), (bar_x_range[1],130),
                                     BAR_COLOR, 1, lineType=cv2.LINE_AA)
     cv2.rectangle(img, (bar_x_range[0],110), (int(vol_bar),130),
                                     BAR_COLOR, -1, lineType=cv2.LINE_AA)
     cv2.putText(img, f'{int(vol)}', (bar_x_range[1]+20,128), 0, 0.8,
-                                    TEXT_COLOR, 2, lineType=cv2.LINE_AA)
+                                    LABEL_COLOR, 2, lineType=cv2.LINE_AA)
 
 
 def draw_landmarks(img, pt1, pt2, color=LINE_COLOR):

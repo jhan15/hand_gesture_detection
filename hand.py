@@ -17,22 +17,22 @@ from utils.utils import calculate_angle, display_hand_info
 
 CAM_W = 1280
 CAM_H = 720
-TEXT_COLOR = (102, 51, 0)
+TEXT_COLOR = (243,236,27)
 LM_COLOR = (102,255,255)
 LINE_COLOR = (51,51,51)
 
 
 # A hand detector based on mediapipe, it can detect hands and return several features of hands:
-#   'index'         - the index number of hands, -1 is the firstly detected one
 #   'label'         - handedness of hands, 'left', 'right'
 #   'landmarks'     - the coordinates of 21 hand joints
 #   'wrist_angle'   - angle of <index finger mcp, wrist, pinky mcp>
 #   'direction'     - the direction that a hand is pointing, 'up', 'down', 'left', 'right'
 #   'facing'        - the facing of hands, 'front', 'back' ('front' means the palm is facing the camera)
 #   'boundary'      - the boundary joints from 'up', 'down', 'left', 'right'
+
 class HandDetector:
     def __init__(self, static_image_mode=False, max_num_hands=2,
-                min_detection_confidence=0.8, min_tracking_confidence=0.5):
+                 min_detection_confidence=0.8, min_tracking_confidence=0.5):
         
         self.static_image_mode = static_image_mode
         self.max_num_hands = max_num_hands
@@ -59,13 +59,9 @@ class HandDetector:
 
             for i in range(num_hands):
                 self.decoded_hands[i] = dict()
+                lm_list = list()
                 handedness = self.results.multi_handedness[i]
                 hand_landmarks = self.results.multi_hand_landmarks[i]
-
-                self.decoded_hands[i]['index'] = handedness.classification[0].index
-                self.decoded_hands[i]['label'] = handedness.classification[0].label.lower()
-
-                lm_list = list()
                 wrist_z = hand_landmarks.landmark[0].z
 
                 for lm in hand_landmarks.landmark:
@@ -74,13 +70,14 @@ class HandDetector:
                     cz = int((lm.z - wrist_z) * w)
                     lm_list.append([cx, cy, cz])
                 
+                label = handedness.classification[0].label.lower()
                 lm_array = np.array(lm_list)
-                direction, facing = check_hand_direction(lm_array, self.decoded_hands[i]['label'])
+                direction, facing = check_hand_direction(lm_array, label)
                 boundary = find_boundary_lm(lm_array)
-
                 wrist_angle_joints = lm_array[[5, 0, 17]]
                 wrist_angle = calculate_angle(wrist_angle_joints)
 
+                self.decoded_hands[i]['label'] = label
                 self.decoded_hands[i]['landmarks'] = lm_array
                 self.decoded_hands[i]['wrist_angle'] = wrist_angle
                 self.decoded_hands[i]['direction'] = direction
@@ -121,7 +118,7 @@ def main(max_hands=2):
         ptime = ctime
 
         cv2.putText(img, f'FPS: {int(fps)}', (50,50), 0, 0.8,
-                    TEXT_COLOR , 2, lineType=cv2.LINE_AA)
+                    TEXT_COLOR, 2, lineType=cv2.LINE_AA)
 
         cv2.imshow('Hand detection', img)
         key = cv2.waitKey(1)
