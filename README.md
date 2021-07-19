@@ -2,7 +2,10 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/jhan15/hand_gesture_detection?color=ff69b4)
 
 # hand_gesture_detection
-It's a project of exploring hand gesture detection and possible applications. It's based on Google's [mediapipe](https://github.com/google/mediapipe) API's hand module, which provides coordinates of 21 hand landmarks.
+It's a project of hand gesture detection based on Google's [mediapipe](https://github.com/google/mediapipe) API's hand module, which provides coordinates of 21 hand landmarks. Functionalities included are:
+1. hand detection;
+2. hand gesture detection;
+3. hand gesture control.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/62132206/124274282-5af07f80-db41-11eb-9ac8-bf14d9680d68.png?raw=true" width="600">
