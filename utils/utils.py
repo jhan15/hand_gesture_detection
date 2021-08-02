@@ -170,7 +170,7 @@ def map_gesture(gestures, finger_states, landmarks, wrist_angle, direction, boun
         else:
             flag = 0
             for bound, lm in temp['boundary'].items():
-                if boundary[bound] != lm:
+                if boundary[bound] not in lm:
                     flag = 1
                     break
             if flag == 0:
