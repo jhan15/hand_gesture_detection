@@ -25,14 +25,14 @@ $ pip install -r requirements.txt
 ## Usage
 
 ### Hand detector
-Detect hands on streams, it draws the landmarks on detected hands and returns hand information such as handedness, landmark coordinates, direction, facing, boundary etc.
+Detect hands on streams, it draws the landmarks on detected hands and returns hand features, including handedness, landmark coordinates, direction, facing, boundary, wrist angle.
 
 ```bash
 $ python3 hand.py --max_hands 2
 ```
 
 ### Gesture detector
-Detect hand gestures on streams, it can detect a series of pre-defined hand gestures, such as Chinese number 1 - 10, 'OK', 'Thumbs-up', 'Thumbs-down', 'Rock', 'Claw' etc.
+Detect hand gestures on streams, it can detect a series of pre-defined hand gestures, including Chinese number 1 - 10, 'OK', 'Thumbs-up', 'Thumbs-down', 'Rock', 'Claw', 'C' shape, 'O' shape, 'pinch'.
 
 ```bash
 $ python3 gesture.py --mode single
@@ -41,12 +41,20 @@ $ python3 gesture.py --mode single
 (Currenly only single-hand gestures are supported, double-hand gestures TBD)
 
 ### Volume controller
-It's a possible application of hand gesture in areas like smart home, to control volume of smart devices. Hand gestures can be used for activation, deactivation, and control.
+Control volume using hand gestures. It's a possible application in areas like smart home and in-cabin interaction. Hand gestures can be used for activation, deactivation, and control.
 
 ```bash
 $ python3 vol_controller.py --control continuous # continuous control
                                       step # step control
 ```
+
+## Demo
+
+### Hand detector
+
+### Gesture detector
+
+### Volume controller
 
 #### Continuous control
 
