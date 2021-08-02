@@ -11,7 +11,7 @@ It's a hand gesture detection project based on the hand module of Google's [medi
 Functionalities included in the project are:
 1. Hand detection;
 2. Hand gesture detection;
-3. Control using hand gestures.
+3. Volume control using hand gestures.
 
 ## Requirements
 Python 3.8 or later with dependencies listed in [requirements.txt](https://github.com/jhan15/gesture_detection/blob/master/requirements.txt). To install run:
