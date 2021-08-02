@@ -2,16 +2,16 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/jhan15/hand_gesture_detection?color=ff69b4)
 
 # hand_gesture_detection
-It's a project of hand gesture detection based on Google's [mediapipe](https://github.com/google/mediapipe) API's hand module, which gives the coordinates of 21 hand landmarks.
+It's a hand gesture detection project based on the hand module of Google's [mediapipe](https://github.com/google/mediapipe) API. The hand module gives the coordinates of 21 hand landmarks, which can be found in the image below.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/62132206/124274282-5af07f80-db41-11eb-9ac8-bf14d9680d68.png?raw=true" width="600">
 </p>
 
-Functionalities included are:
-1. hand detection;
-2. hand gesture detection;
-3. hand gesture control.
+Functionalities included in the project are:
+1. Hand detection;
+2. Hand gesture detection;
+3. Control using hand gestures.
 
 ## Requirements
 Python 3.8 or later with dependencies listed in [requirements.txt](https://github.com/jhan15/gesture_detection/blob/master/requirements.txt). To install run:
