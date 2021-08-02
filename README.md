@@ -50,19 +50,23 @@ $ python3 vol_controller.py --control continuous # continuous control
 ### Hand detector
 Detect hands on streams, it draws the landmarks on detected hands and returns hand features, including handedness, landmark coordinates, direction, facing, boundary, wrist angle.
 
+![hand1](https://user-images.githubusercontent.com/62132206/127870204-96725670-6db0-4025-be46-bd3efacae085.gif)
+
 ### Gesture detector
 Detect hand gestures on streams, it can detect a series of pre-defined hand gestures, including Chinese number 1 - 10, 'OK', 'Thumbs-up', 'Thumbs-down', 'Rock', 'Claw', 'C shape', 'O shape', 'Pinch'.
+
+![gesture1](https://user-images.githubusercontent.com/62132206/127870254-c205a04a-4b7f-4ce3-b4e6-549a38183125.gif)
 
 ### Volume controller
 Control volume using hand gestures. It's a possible application in areas like smart home and in-cabin interaction. Hand gestures can be used for activation, deactivation, and control. In this case, we use 'Pinch' as activation and control gesture and 'C shape' as deactivation gesture.
 
 #### Continuous control
 
-![vol1](https://user-images.githubusercontent.com/62132206/121547644-9a2d2400-ca0c-11eb-9141-a280243f71b0.gif)
+![continuous1](https://user-images.githubusercontent.com/62132206/127870281-51b98ccb-60c0-491d-b26e-712804d0b639.gif)
 
 #### Step control
 
-![vol3](https://user-images.githubusercontent.com/62132206/121547653-9c8f7e00-ca0c-11eb-9319-e75a4e96cf6f.gif)
+![step1](https://user-images.githubusercontent.com/62132206/127870295-00b94af1-3fbb-474b-b0f0-3e717d6d4882.gif)
 
 #### Issue
 
