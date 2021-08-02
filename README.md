@@ -51,7 +51,7 @@ $ python3 vol_controller.py --control continuous # continuous control
 Detect hands on streams, it draws the landmarks on detected hands and returns hand features, including handedness, landmark coordinates, direction, facing, boundary, wrist angle.
 
 ### Gesture detector
-Detect hand gestures on streams, it can detect a series of pre-defined hand gestures, including Chinese number 1 - 10, 'OK', 'Thumbs-up', 'Thumbs-down', 'Rock', 'Claw', 'C' shape, 'O' shape, 'pinch'.
+Detect hand gestures on streams, it can detect a series of pre-defined hand gestures, including Chinese number 1 - 10, 'OK', 'Thumbs-up', 'Thumbs-down', 'Rock', 'Claw', 'C shape', 'O shape', 'pinch'.
 
 ### Volume controller
 Control volume using hand gestures. It's a possible application in areas like smart home and in-cabin interaction. Hand gestures can be used for activation, deactivation, and control.
