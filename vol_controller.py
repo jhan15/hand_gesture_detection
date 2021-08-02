@@ -24,7 +24,7 @@ VOL_RANGE = [0, 100]
 BAR_X_RANGE = [50, CAM_W//5]
 
 
-def vol_control(control='continuous', step=10, traj_size=10):
+def vol_control(control='continuous', vol_step=10, traj_size=10):
     cap = cv2.VideoCapture(0)
     cap.set(3, CAM_W)
     cap.set(4, CAM_H)
@@ -88,12 +88,12 @@ def vol_control(control='continuous', step=10, traj_size=10):
                     if len(trajectory) == traj_size and length > step_threshold[1]:
                         up = check_trajectory(trajectory, direction=1)
                         if up:
-                            vol = min(vol + step, VOL_RANGE[1])
+                            vol = min(vol + vol_step, VOL_RANGE[1])
                             osascript("set volume output volume {}".format(vol))
                     if len(trajectory) == traj_size and length < step_threshold[0]:
                         down = check_trajectory(trajectory, direction=-1)
                         if down:
-                            vol = max(vol - step, VOL_RANGE[0])
+                            vol = max(vol - vol_step, VOL_RANGE[0])
                             osascript("set volume output volume {}".format(vol))
                     if up or down:
                         vol_bar = np.interp(vol, VOL_RANGE, BAR_X_RANGE)
