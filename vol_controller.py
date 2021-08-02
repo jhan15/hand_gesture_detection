@@ -116,9 +116,12 @@ def vol_control(control='continuous', step=10, traj_size=10):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--control', type=str, default='continuous')
-    parser.add_argument('--step', type=int, default=10)
-    parser.add_argument('--traj_size', type=int, default=10)
+    parser.add_argument('--control', type=str, default='continuous',
+                        help='volume control mode (default: continuous)')
+    parser.add_argument('--vol_step', type=int, default=10,
+                        help='volume update step for step control (default: 10)')
+    parser.add_argument('--traj_size', type=int, default=10,
+                        help='trajetory size (default: 10)')
     opt = parser.parse_args()
 
     vol_control(**vars(opt))
