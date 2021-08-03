@@ -23,7 +23,6 @@ $ pip install -r requirements.txt
 ```
 
 ## Usage
-### Hand detector
 
 ```bash
 # Hand detector
@@ -33,19 +32,6 @@ $ python3 hand.py --max_hands 2
 $ python3 gesture.py --mode single # currenly only single-hand gestures are supported
 
 # Volume controller
-$ python3 vol_controller.py --control continuous # continuous control
-                                      step # step control
-```
-
-### Gesture detector
-
-```bash
-$ python3 gesture.py --mode single # currenly only single-hand gestures are supported
-```
-
-### Volume controller
-
-```bash
 $ python3 vol_controller.py --control continuous # continuous control
                                       step # step control
 ```
