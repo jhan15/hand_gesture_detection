@@ -45,17 +45,17 @@ $ python3 vol_controller.py --control continuous # continuous control
 ## Demo
 
 ### Hand detector
-Detect hands on streams, it draws the landmarks on detected hands and returns hand features, including handedness, landmark coordinates, direction, facing, boundary, wrist angle.
+Detect hands on streams, it draws the landmarks on detected hands and returns several hand features, including handedness, landmark coordinates, hand direction, hand facing, boundary landmarks, wrist angle.
 
 ![hand1](https://user-images.githubusercontent.com/62132206/127870204-96725670-6db0-4025-be46-bd3efacae085.gif)
 
 ### Gesture detector
-Detect hand gestures on streams, it can detect a series of pre-defined hand gestures, including Chinese number 1 - 10, 'OK', 'Thumbs-up', 'Thumbs-down', 'Rock', 'Claw', 'C shape', 'O shape', 'Pinch'.
+Detect hand gestures on streams, now it can detect 18 pre-defined hand gestures, including Chinese number 1 - 10, 'OK', 'Thumbs-up', 'Thumbs-down', 'Rock', 'Claw', 'C shape', 'O shape', 'Pinch'.
 
 ![gesture1](https://user-images.githubusercontent.com/62132206/127870254-c205a04a-4b7f-4ce3-b4e6-549a38183125.gif)
 
 ### Volume controller
-Control volume using hand gestures. It's a possible application in areas like smart home and in-cabin interaction. Hand gestures can be used for activation, deactivation, and control. In this case, we use 'Pinch' as activation and control gesture and 'C shape' as deactivation gesture.
+Control volume using hand gestures. It's a possible application in areas like smart home and in-cabin interaction. Hand gestures can be used for activation, control, and deactivation. In this case, we use 'Pinch' as activation and control gesture and 'C shape' as deactivation gesture. There are two types of control behavior here, continuous control and step control.
 
 #### Continuous control
 
