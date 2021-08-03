@@ -9,8 +9,8 @@ It's a hand gesture detection project based on the hand module of Google's [medi
 </p>
 
 Functionalities included in the project are:
-1. Hand detection;
-2. Hand gesture detection;
+1. Hand detection.
+2. Hand gesture detection.
 3. Volume control using hand gestures.
 
 ## Requirements
