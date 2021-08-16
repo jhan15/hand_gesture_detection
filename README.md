@@ -24,7 +24,7 @@ $ pip install -r requirements.txt
 
 ## Usage
 
-```python
+```bash
 # Hand detector
 $ python3 hand.py --max_hands 2
 
